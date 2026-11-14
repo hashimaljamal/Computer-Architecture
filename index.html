@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Interactive Lessons</title>
+  <meta name="description" content="Interactive solutions for each lesson: enter your own numbers and see the answer worked out and drawn.">
+  <link rel="icon" href="data:,">
+  <!-- set the theme before the page paints so it doesn't flash -->
+  <script>
+    (function () {
+      var t = null;
+      try { t = localStorage.getItem('interactive-lessons-theme'); } catch (e) {}
+      if (t !== 'light' && t !== 'dark') {
+        t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
+  <!-- one stylesheet per lesson (add yours here) -->
+  <link rel="stylesheet" href="lessons/memory-design/memory-design.css">
+  <link rel="stylesheet" href="lessons/lc3-encoding/lc3-encoding.css">
+  <link rel="stylesheet" href="lessons/pipelining/pipelining.css">
+  <link rel="stylesheet" href="lessons/cache/cache.css">
+</head>
+<body>
+  <main class="app">
+    <div class="topbar"><button type="button" id="tg" class="pb"></button></div>
+
+    <header class="title">
+      <h1>Interactive Lessons</h1>
+      <p class="by">by Hashim AlJamal</p>
+    </header>
+
+    <div class="tabs" id="tabs" role="tablist" aria-label="Lessons"></div>
+    <div id="panels"></div>
+    <noscript><p class="muted center">These lessons need JavaScript turned on.</p></noscript>
+  </main>
+
+  <!-- shell.js must come first; then one block per lesson (add yours below) -->
+  <script defer src="shell.js"></script>
+
+  <script defer src="lessons/lc3-encoding/lc3.js"></script>
+  <script defer src="lessons/lc3-encoding/questions.js"></script>
+  <script defer src="lessons/lc3-encoding/lc3-encoding.js"></script>
+
+  <script defer src="lessons/pipelining/deps.js"></script>
+  <script defer src="lessons/pipelining/questions.js"></script>
+  <script defer src="lessons/pipelining/diagram.js"></script>
+  <script defer src="lessons/pipelining/pipelining.js"></script>
+
+  <script defer src="lessons/memory-design/logic.js"></script>
+  <script defer src="lessons/memory-design/schematic.js"></script>
+  <script defer src="lessons/memory-design/memory-design.js"></script>
+
+  <script defer src="lessons/cache/logic.js"></script>
+  <script defer src="lessons/cache/questions.js"></script>
+  <script defer src="lessons/cache/cache.js"></script>
+</body>
+</html>

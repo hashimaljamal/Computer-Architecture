@@ -1,0 +1,109 @@
+/* Styles for the LC-3 encoding lesson. Everything is scoped under .lesson-lc3. */
+
+.lesson-lc3 .lesson-title { font-size: 20px; font-weight: 500; text-align: center; margin: 0 0 14px; line-height: 1.3; }
+.lesson-lc3 .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+.lesson-lc3 .prompt { font-size: 13px; color: var(--tsec); margin: 0 0 12px; line-height: 1.6; }
+.lesson-lc3 .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace; }
+
+/* start address + view switch */
+.lesson-lc3 .bar { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 10px 16px; margin: 0 0 10px; }
+.lesson-lc3 .f { display: block; margin: 0 0 10px; }
+.lesson-lc3 .bar .f { margin: 0; }
+.lesson-lc3 .fl { display: block; font-size: 13px; color: var(--tsec); margin: 0 0 4px; }
+.lesson-lc3 .ctl input { width: 110px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.lesson-lc3 .modes { display: flex; gap: 6px; }
+
+.lesson-lc3 textarea {
+  display: block;
+  width: 100%;
+  min-height: 210px;
+  resize: vertical;
+  font: 13px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  padding: 8px 10px;
+  tab-size: 4;
+  white-space: pre;
+  overflow: auto;
+}
+.lesson-lc3 .errs { margin: 0 0 10px; padding: 0 0 0 18px; font-size: 13px; color: var(--tdan); }
+.lesson-lc3 .errs:empty { display: none; }
+
+/* memory map table */
+.lesson-lc3 .tablewrap { overflow-x: auto; margin: 0 0 10px; border: 0.5px solid var(--bd); border-radius: 8px; }
+.lesson-lc3 .enc { width: 100%; border-collapse: collapse; font-size: 13px; }
+.lesson-lc3 .enc th { text-align: left; font-weight: 500; color: var(--tsec); padding: 7px 10px; border-bottom: 0.5px solid var(--bd); white-space: nowrap; }
+.lesson-lc3 .enc td { padding: 4px 10px; border-bottom: 0.5px solid var(--bd); vertical-align: middle; white-space: nowrap; }
+.lesson-lc3 .enc tr:last-child td { border-bottom: none; }
+.lesson-lc3 .enc tr.sel td { background: var(--s1); }
+.lesson-lc3 .enc td.bad { color: var(--tdan); white-space: normal; }
+.lesson-lc3 .lbl { color: var(--tacc); margin-right: 6px; }
+.lesson-lc3 .rowbtn { background: none; border: none; padding: 3px 5px; margin: -3px 0 -3px -5px; text-align: left; font: inherit; color: var(--tpri); cursor: pointer; border-radius: 4px; }
+.lesson-lc3 .rowbtn:hover { background: var(--btnh); }
+.lesson-lc3 .rowbtn[aria-current="true"] { font-weight: 500; text-decoration: underline; text-underline-offset: 3px; }
+.lesson-lc3 .st { font-size: 12px; }
+.lesson-lc3 .ok, .lesson-lc3 .okmsg { color: var(--tacc); }
+.lesson-lc3 .warn, .lesson-lc3 .warnmsg { color: var(--wm); }
+.lesson-lc3 .bad { color: var(--tdan); }
+.lesson-lc3 .pin { height: 30px; width: 175px; padding: 3px 7px; font-size: 13px; }
+.lesson-lc3 .pin-hex { width: 84px; }
+.lesson-lc3 .pin.good { border-color: var(--ba); }
+.lesson-lc3 .pin.bad { border-color: var(--tdan); }
+.lesson-lc3 .pactions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 10px; }
+.lesson-lc3 .pactions[hidden] { display: none; }
+
+/* answer key comparison */
+.lesson-lc3 .keybox { margin: 0 0 12px; font-size: 13px; line-height: 1.6; }
+.lesson-lc3 .keybox:empty { display: none; }
+.lesson-lc3 .keybox ul { margin: 4px 0 6px; padding: 0 0 0 18px; }
+.lesson-lc3 .keybox li { margin: 0 0 4px; }
+
+/* the explanation of one instruction */
+.lesson-lc3 .explain { background: var(--s2); border: 0.5px solid var(--bd); border-radius: 12px; padding: 12px 14px; margin: 0 0 12px; }
+.lesson-lc3 .explain:empty { display: none; }
+.lesson-lc3 .ex-title { font-size: 15px; font-weight: 500; margin: 0 0 10px; }
+.lesson-lc3 .steps { margin: 10px 0 0; padding: 0 0 0 18px; font-size: 13px; line-height: 1.6; }
+.lesson-lc3 .steps li { margin: 0 0 3px; }
+.lesson-lc3 .bitsval { color: var(--tsec); }
+.lesson-lc3 .nibs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 12px 0 0; font-size: 13px; }
+.lesson-lc3 .nibs > div { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.lesson-lc3 .nibs b { font-size: 16px; font-weight: 500; }
+.lesson-lc3 .nibs .eq { flex-direction: row; font-size: 16px; font-weight: 500; }
+
+/* bit-field diagram (also used by the reference) */
+.lesson-lc3 .bits { min-width: 0; }
+.lesson-lc3 .bn, .lesson-lc3 .bf { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 2px; }
+.lesson-lc3 .bn span { text-align: center; font-size: 11px; color: var(--tsec); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.lesson-lc3 .bn { margin: 0 0 3px; }
+.lesson-lc3 .fd {
+  --c: var(--bs);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-width: 0; padding: 4px 1px; border: 1px solid var(--c); border-radius: 5px; background: var(--s1);
+  overflow: hidden; text-align: center;
+}
+.lesson-lc3 .fd b { font: 500 13px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; max-width: 100%; overflow: hidden; }
+.lesson-lc3 .fd i { font-style: normal; font-size: 11px; color: var(--tsec); max-width: 100%; overflow: hidden; white-space: nowrap; }
+.lesson-lc3 .k-op { --c: var(--wg); }
+.lesson-lc3 .k-reg { --c: var(--wa); }
+.lesson-lc3 .k-imm { --c: var(--wm); }
+.lesson-lc3 .k-fix { --c: var(--bs); }
+@supports (background: color-mix(in srgb, red 50%, blue)) {
+  .lesson-lc3 .fd, .lesson-lc3 .sw { background: color-mix(in srgb, var(--c) 18%, transparent); }
+}
+.lesson-lc3 .legend { margin: 8px 0 0; }
+.lesson-lc3 .sw { display: inline-block; width: 12px; height: 12px; border: 1px solid var(--c); border-radius: 3px; vertical-align: -1px; margin: 0 4px 0 10px; background: var(--s1); }
+.lesson-lc3 .legend .sw:first-child { margin-left: 0; }
+
+/* reference */
+.lesson-lc3 .ref { margin: 0 0 12px; border: 0.5px solid var(--bd); border-radius: 12px; padding: 10px 14px; }
+.lesson-lc3 .ref summary { cursor: pointer; font-weight: 500; }
+.lesson-lc3 .ref[open] summary { margin-bottom: 10px; }
+.lesson-lc3 .refrow { display: grid; grid-template-columns: 52px minmax(0, 1fr); align-items: center; gap: 8px; margin: 0 0 5px; }
+.lesson-lc3 .rn { font-size: 12px; color: var(--tsec); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.lesson-lc3 .ref .fd { padding: 3px 1px; }
+.lesson-lc3 .ref .fd b { font-size: 12px; }
+
+@media (max-width: 520px) {
+  .lesson-lc3 .pin { width: 150px; }
+}
+
+/* width of the left column on big screens (see style.css) */
+.lesson-lc3 { --left: 380px; }

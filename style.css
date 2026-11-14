@@ -1,0 +1,171 @@
+/* Shared styles: theme colours, page, tabs, and the pieces every lesson can reuse. */
+
+/* ---------- theme colours ---------- */
+:root {
+  --bg: #ffffff;
+  --s1: #f3f1ea;      /* result cards */
+  --s2: #faf9f6;      /* input boxes' cards */
+  --tpri: #1f1e1c;    /* main text */
+  --tsec: #5f5d58;    /* secondary text */
+  --tacc: #0f6e56;    /* accent text */
+  --tdan: #a32d2d;    /* errors */
+  --bd: rgba(0, 0, 0, .14);
+  --bs: rgba(0, 0, 0, .32);
+  --inbg: #ffffff;
+  --btn: #ffffff;
+  --btnh: #efede6;
+  --ring: rgba(29, 158, 117, .28);
+  --ba: #1d9e75;      /* focus / active */
+  /* schematic */
+  --boxf: #f4f2ec;    /* chip and processor fill */
+  --boxs: #76746e;    /* chip and processor outline */
+  --decf: #e1f5ee;    /* decoder fill */
+  --decs: #0f6e56;    /* decoder outline */
+  --wa: #1d9e75;      /* address wires */
+  --wm: #ba7517;      /* control wires */
+  --wg: #6f6e68;      /* data wires */
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #1c1b19;
+  --s1: #2a2926;
+  --s2: #232220;
+  --tpri: #f0eee8;
+  --tsec: #b4b1a8;
+  --tacc: #5dcaa5;
+  --tdan: #f09595;
+  --bd: rgba(255, 255, 255, .14);
+  --bs: rgba(255, 255, 255, .32);
+  --inbg: #2f2e2b;
+  --btn: #2f2e2b;
+  --btnh: #3b3a36;
+  --ring: rgba(93, 202, 165, .35);
+  --ba: #5dcaa5;
+  --boxf: #2e2d2a;
+  --boxs: #9a978e;
+  --decf: #04342c;
+  --decs: #5dcaa5;
+  --wa: #5dcaa5;
+  --wm: #ef9f27;
+  --wg: #c9c7be;
+  color-scheme: dark;
+}
+
+/* ---------- page ---------- */
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--tpri);
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transition: background .2s, color .2s;
+}
+.app { max-width: 720px; margin: 0 auto; padding: 16px 20px 48px; }
+p { margin: 0; }
+
+.topbar { display: flex; justify-content: flex-end; margin: 0 0 4px; }
+.title { text-align: center; margin: 0 0 14px; }
+.title h1 { margin: 0; font-size: 22px; font-weight: 500; line-height: 1.3; }
+.by { font-size: 13px; color: var(--tsec); margin-top: 2px; }
+
+/* ---------- tabs ---------- */
+.tabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  border-bottom: 0.5px solid var(--bd);
+  margin: 0 0 18px;
+  scrollbar-width: thin;
+}
+button.tab {
+  flex: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 9px 14px;
+  margin-bottom: -0.5px;
+  color: var(--tsec);
+  white-space: nowrap;
+}
+button.tab:hover { background: var(--s1); color: var(--tpri); }
+button.tab[aria-selected="true"] { color: var(--tpri); font-weight: 500; border-bottom-color: var(--ba); }
+button.tab:focus-visible { outline-offset: -2px; }
+.panel[hidden] { display: none; }
+
+/* ---------- controls (shared by every lesson) ---------- */
+input, select, textarea {
+  background: var(--inbg);
+  color: var(--tpri);
+  border: 0.5px solid var(--bs);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 14px;
+}
+input, select { height: 34px; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--ba); box-shadow: 0 0 0 2px var(--ring); }
+button {
+  background: var(--btn);
+  color: var(--tpri);
+  border: 0.5px solid var(--bs);
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+}
+button:hover { background: var(--btnh); }
+button:focus-visible { outline: 2px solid var(--ba); outline-offset: 2px; }
+.pb { font-size: 13px; padding: 4px 10px; }
+.pb.on { border-color: var(--ba); font-weight: 500; }
+
+/* ---------- small helpers ---------- */
+.muted { color: var(--tsec); }
+.small { font-size: 12px; }
+.center { text-align: center; }
+.err { font-size: 13px; color: var(--tdan); }
+.cap { font-size: 13px; color: var(--tsec); margin: 14px 0 6px; line-height: 1.6; }
+
+/* ---------- lesson layout ----------
+ * Every lesson puts its inputs in .col-a and its results in .col-b, inside .split.
+ * Small screens: one column that scrolls like a normal page.
+ * Big screens (wide and tall enough): the page fits the window, the two columns
+ * sit side by side, and each column scrolls on its own if it needs to.
+ * A lesson can set --left (width of the left column) on its panel class. */
+.split { display: block; }
+.col-a, .col-b { min-width: 0; }
+
+@media (min-width: 900px) and (min-height: 560px) {
+  html, body { height: 100%; overflow: hidden; }
+  .app {
+    max-width: 1600px;
+    height: 100vh;
+    height: 100dvh;
+    padding: 10px 24px 14px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    grid-template-areas: "title top" "tabs tabs" "panels panels";
+  }
+  .topbar { grid-area: top; margin: 0; align-items: center; }
+  .title { grid-area: title; margin: 0; text-align: left; display: flex; align-items: baseline; gap: 12px; }
+  .title h1 { font-size: 18px; }
+  .by { margin: 0; }
+  .tabs { grid-area: tabs; margin: 6px 0 14px; }
+  #panels { grid-area: panels; min-height: 0; }
+  .panel:not([hidden]) { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+  .panel > .lesson-title { display: none; }      /* the selected tab already names the lesson */
+  .split {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: var(--left, 420px) minmax(0, 1fr);
+    gap: 28px;
+  }
+  .col-a, .col-b { min-height: 0; overflow-y: auto; scrollbar-gutter: stable; padding: 0 4px 16px 0; }
+  .col-a { border-right: 0.5px solid var(--bd); padding-right: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body { transition: none; }
+}
