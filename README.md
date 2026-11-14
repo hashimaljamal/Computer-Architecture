@@ -143,13 +143,6 @@ No build step. Open `index.html` in a browser, or serve the folder:
 npx serve .
 ```
 
-## Put it on GitHub Pages
-
-1. Push this folder to a GitHub repository.
-2. In the repository go to **Settings → Pages**.
-3. Under **Build and deployment**, choose **Deploy from a branch**, pick `main` and `/ (root)`, and save.
-4. After a minute the site is live at `https://<your-username>.github.io/<repository-name>/`.
-
 ## Tests
 
 ```
