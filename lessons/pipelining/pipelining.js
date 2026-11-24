@@ -296,7 +296,7 @@
     var CATS = [{ id: 'deps', title: 'Data dependencies' }, { id: 'regs', title: 'Pipeline registers' }];
     function renderButtons() {
       O('cats').innerHTML = CATS.map(function (c) { return '<button type="button" class="pb qbtn' + (c.id === S.cat ? ' on' : '') + '" data-cat="' + c.id + '" aria-pressed="' + (c.id === S.cat) + '">' + c.title + '</button>'; }).join('');
-      if (S.cat === 'regs') { O('qs').innerHTML = '<button type="button" class="pb qbtn on" aria-pressed="true">' + PipeRegs.QUESTION.tab + '</button>'; return; }
+      if (S.cat === 'regs') { O('qs').innerHTML = '<button type="button" class="pb qbtn on" data-q="q5" aria-pressed="true">' + PipeRegs.QUESTION.tab + '</button>'; return; }
       O('qs').innerHTML = QS.map(function (q) {
         return '<button type="button" class="pb qbtn' + (q.id === S.q.id ? ' on' : '') + '" data-q="' + q.id + '" aria-pressed="' + (q.id === S.q.id) + '">' + q.tab + '</button>';
       }).join('');
@@ -415,7 +415,7 @@
       var t = e.target.closest('[data-cat],[data-q],[data-mode],[data-row],[data-act],[data-rm],[data-tut]');
       if (!t || (O('regview').contains(t) && !t.hasAttribute('data-mode'))) return;
       if (t.hasAttribute('data-cat')) { S.cat = t.getAttribute('data-cat'); if (rtut.reset) rtut.reset(); renderButtons(); renderMode(); }
-      else if (t.hasAttribute('data-q')) loadQuestion(t.getAttribute('data-q'));
+      else if (t.hasAttribute('data-q')) { if (t.getAttribute('data-q') === 'q5') { S.cat = 'regs'; renderButtons(); renderMode(); } else loadQuestion(t.getAttribute('data-q')); }
       else if (t.hasAttribute('data-mode')) { S.mode = t.getAttribute('data-mode'); renderMode(); renderDiagram(); }
       else if (t.hasAttribute('data-tut')) { S.tut = !S.tut; renderMode(); }
       else if (t.hasAttribute('data-row')) toggleRow(+t.getAttribute('data-row'));

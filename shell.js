@@ -145,6 +145,45 @@
     return !t.length || t.some(function (x) { return enabled[x]; });
   }
 
+  /* ---------- per-question filtering ---------- */
+  // inside a practice tab, hide the question (and category) buttons whose lectures are switched off,
+  // and move off a question or category that has just been hidden
+  function qOn(tab, id) {
+    var Q = C().QUESTIONS && C().QUESTIONS[tab], t = Q && Q.q[id];
+    return !t || t.some(function (x) { return enabled[x]; });
+  }
+  function applyQuestions(id) {
+    var p = parts[id], Q = C().QUESTIONS && C().QUESTIONS[id];
+    if (!p || !p.mounted || !Q) return;
+    var panel = p.panel, cats = Q.cats, moved = false;
+    if (cats) {
+      var catBtns = panel.querySelectorAll('[' + cats.attr + ']'), firstCat = null;
+      Array.prototype.forEach.call(catBtns, function (b) {
+        var list = cats.of[b.getAttribute(cats.attr)];
+        if (!list) return;
+        var on = list.some(function (q) { return qOn(id, q); });
+        if (b.hidden === on) b.hidden = !on;
+        if (on && !firstCat) firstCat = b;
+      });
+      var cur = Array.prototype.filter.call(catBtns, function (b) { return cats.of[b.getAttribute(cats.attr)] && b.classList.contains('on'); })[0];
+      if (cur && cur.hidden && firstCat) { firstCat.click(); moved = true; }
+    }
+    if (moved) return;   // the click re-renders; the observer calls us again
+    var qBtns = Array.prototype.filter.call(panel.querySelectorAll('[data-q]'), function (b) { return Q.q[b.getAttribute('data-q')]; });
+    qBtns.forEach(function (b) { var on = qOn(id, b.getAttribute('data-q')); if (b.hidden === on) b.hidden = !on; });
+    var shown = qBtns.filter(function (b) { return !b.hidden && b.getClientRects().length > 0; });
+    var live = function (b) { return b.parentElement && b.parentElement.getClientRects().length > 0; };
+    var active = qBtns.filter(function (b) { return b.classList.contains('on') && live(b); })[0];
+    if (active && active.hidden && shown.length) shown[0].click();
+  }
+  function watchQuestions(id) {
+    var p = parts[id];
+    if (!p || p.watching || !window.MutationObserver) return;
+    p.watching = true;
+    var busy = false;
+    new MutationObserver(function () { if (busy) return; busy = true; try { applyQuestions(id); } finally { busy = false; } }).observe(p.panel, { childList: true, subtree: true });
+  }
+
   function addTab(lesson) {
     var panel = document.createElement('section');
     panel.className = 'panel';
@@ -203,6 +242,7 @@
       }
     }
     if (typeof p.lesson.onShow === 'function') { try { p.lesson.onShow(p.panel); } catch (e) { console.error(e); } }
+    if (p.lesson.section === 'practice') { watchQuestions(id); applyQuestions(id); }
     currentId = id;
     document.title = p.lesson.title + ' - ' + SITE_NAME;
   }
@@ -243,6 +283,7 @@
   // hide the tabs of lessons that are switched off
   function syncTabs() {
     lessons.forEach(function (l) { var p = parts[l.id]; if (p && p.tab) p.tab.hidden = !visible(l); });
+    Object.keys(parts).forEach(function (k) { if (!parts[k].panel.hidden) applyQuestions(k); });
     var pre = Filter.preset(), nOn = C().TOPICS.filter(function (t) { return Filter.has(t.id); }).length;
     $('exq').innerHTML = [{ id: 'all', title: 'All' }].concat(C().EXAMS).map(function (x) {
       return '<button type="button" class="pb qbtn' + (pre === x.id ? ' on' : '') + '" data-fexam="' + x.id + '" aria-pressed="' + (pre === x.id) + '">' + x.title + '</button>';
