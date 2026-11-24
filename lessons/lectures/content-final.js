@@ -255,19 +255,13 @@ K.list(['the whole virtual memory space is visible to both CPU and GPU;', 'virtu
   Lectures.register('l15', function () {
     var D = window.IODraw, L = window.IOLogic, Q = window.IOQuestions;
     var tab = L ? K.table(['S4', 'S3', 'S2', 'S1', 'S0', 'Cin', 'Operation'], L.TABLE.map(function (r, i) { return r.slice(0, 5).map(String).concat([r[5] === null ? 'X' : String(r[5]), '<b>' + K.esc(L.TABLE_OPS[i]) + '</b>']); }), 'mono') : '';
-    var hs = K.blocks(620, 260, [
-      { id: 'a', x: 20, y: 10, w: 60, h: 30, label: 'A' }, { id: 'b', x: 200, y: 10, w: 60, h: 30, label: 'B' },
-      { id: 'inv', x: 230, y: 55, w: 90, h: 30, label: 'NOT / mux', sub: 'F2: B or ~B', cls: 'acc' },
-      { id: 'add', x: 120, y: 110, w: 90, h: 40, label: '+', sub: 'Cin = F2', cls: 'acc' }, { id: 'and', x: 250, y: 110, w: 70, h: 40, label: 'AND' }, { id: 'or', x: 340, y: 110, w: 70, h: 40, label: 'OR' },
-      { id: 'zx', x: 20, y: 170, w: 120, h: 36, label: 'zero-extend', sub: 'sign bit S[N−1]', cls: 'dim' },
-      { id: 'mux', x: 160, y: 210, w: 260, h: 40, label: 'mux (F1:0)', sub: '0 AND, 1 OR, 2 sum, 3 SLT', cls: 'acc' }
-    ], [['b', 'inv'], ['a', 'add', '', 'M50 40V130H118'], ['inv', 'add', 'BB', 'M275 85V95H165V108'], ['inv', 'and', '', 'M285 85V108'], ['inv', 'or', '', 'M300 85V95H375V108'], ['add', 'zx', '', 'M140 150V160H80V168'], ['add', 'mux', 'S', 'M175 150V208'], ['and', 'mux', '', 'M285 150V208'], ['or', 'mux', '', 'M375 150V208'], ['zx', 'mux', '', 'M80 206V230H158']], 'The textbook ALU');
+
     return '' +
-'<h3>1. What an ALU is</h3><p>An <b>arithmetic logic unit</b> combines many arithmetic and logic operations in one unit, which performs <b>one function at a time</b>, chosen by control inputs. It is drawn as a V-shaped block with inputs A and B (N bits each), a control input F, and output Y.</p>' +
+'<h3>1. What an ALU is</h3><p>An <b>arithmetic logic unit</b> combines many arithmetic and logic operations in one unit, which performs <b>one function at a time</b>, chosen by control inputs. It is drawn as a V-shaped block with inputs A and B (N bits each), a control input F, and output Y.</p>' + (D ? iod(K.fig(D.aluSymbol(), 'The ALU symbol. A slash on a wire with a number gives its width in bits.')) : '') +
 '<h3>2. The textbook ALU (F<sub>2:0</sub>)</h3>' + K.table(['F<sub>2:0</sub>', 'Function'], [['000', 'A AND B'], ['001', 'A OR B'], ['010', 'A + B'], ['011', 'not used'], ['100', 'A AND ~B'], ['101', 'A OR ~B'], ['110', 'A − B'], ['111', 'SLT (set if A &lt; B)']], 'mono') +
-K.fig(hs, 'F2 chooses B or ~B (called BB) and is also the adder’s carry-in; F1:0 choose which result reaches Y.') +
+'<p>Inside it (the lecture’s figure). Pick F and the path that carries the result lights up, as in the slides:</p>' + K.widget('harris') +
 K.list(['<b>F2</b> drives a mux that passes B or ~B, and the same F2 is the carry-in. So F = 110 computes A + ~B + 1 = <b>A − B</b> (two’s complement).', 'The AND and OR gates and the adder all work at once on A and BB.', '<b>F1:0</b> drive the output mux: 00 AND, 01 OR, 10 the sum, 11 SLT.', '<b>SLT</b> (set less than): compute S = A − B; if its sign bit S<sub>N−1</sub> is 1 the result is negative, so A &lt; B. The sign bit is zero-extended to N bits: Y = 1 if A &lt; B, else 0.', 'With F2 = 1, F1:0 = 00 and 01 give A AND ~B and A OR ~B for free.']) +
-'<p>Try every function on 4-bit values:</p>' + K.widget('harris') +
+
 '<h3>3. Another ALU design (five select bits)</h3><p>The practice problem uses a bigger ALU with select bits S4–S0 and Cin:</p>' + tab +
 K.list(['<b>One adder</b> computes A + X + Cin, where a mux driven by S1 S0 chooses X: 0, B, ~B, or 0. That covers every arithmetic row: A, A + 1, A + B, A + B + 1, A + ~B, A + ~B + 1 (= A − B).', 'A <b>logic unit</b> computes AND, OR, XOR and ~A; a mux driven by S1 S0 picks one.', '<b>S2</b> chooses the adder (0) or the logic unit (1).', '<b>S4 S3</b> choose the final output: that result (00), A &lt;&lt; 1 (01), A &gt;&gt; 1 (10) or 0 (11).']) +
 (D && L && Q ? iod(K.fig(D.aluPath(L.alu(0x3C, 0x0F, 0b00010, 1), 0x3C, 0x0F, 1, Q.hex2), 'Select 00010 with Cin = 1: A + ~B + 1 = A − B; with A = 0x3C and B = 0x0F the result is 0x2D.')) : '') +

@@ -119,35 +119,132 @@
     return svg(X(end) + 10, H, b, kind + ' protocol timing');
   }
 
+
+  /* ---------- logic symbols (shared by the ALU and parity drawings) ---------- */
+  // multiplexer as a trapezoid. dir 'r': inputs on the left, output on the right; 'd': inputs on top, output at the bottom
+  function mux(x, y, w, h, dir, act) {
+    var k = dir === 'd' ? Math.min(18, w * 0.12) : Math.min(18, h * 0.12);
+    var pts = dir === 'd' ? [[x, y], [x + w, y], [x + w - k, y + h], [x + k, y + h]] : [[x, y], [x + w, y + k], [x + w, y + h - k], [x, y + h]];
+    return '<polygon points="' + pts.map(function (p) { return p.join(','); }).join(' ') + '" class="mx' + (act ? ' act' : '') + '"/>';
+  }
+  // the classic V-shaped ALU / adder outline, inputs on top
+  function vshape(x, y, w, h, act) {
+    return '<path d="M' + x + ' ' + y + 'H' + (x + w * 0.4) + 'L' + (x + w * 0.5) + ' ' + (y + h * 0.32) + 'L' + (x + w * 0.6) + ' ' + y + 'H' + (x + w) + 'L' + (x + w * 0.78) + ' ' + (y + h) + 'H' + (x + w * 0.22) + 'Z" class="mx' + (act ? ' act' : '') + '"/>';
+  }
+  // gates. 'r': inputs left, output right (box x..x+w, y..y+h). 'd': inputs on top, output at the bottom
+  function gate(kind, x, y, w, h, dir, act) {
+    var c = 'g' + (act ? ' act' : ''), d;
+    if (dir === 'd') {
+      if (kind === 'and') d = 'M' + x + ' ' + y + 'H' + (x + w) + 'V' + (y + h - w / 2) + 'A' + (w / 2) + ' ' + (w / 2) + ' 0 0 1 ' + x + ' ' + (y + h - w / 2) + 'Z';
+      else if (kind === 'or') d = 'M' + x + ' ' + y + 'Q' + (x + w / 2) + ' ' + (y + h * 0.28) + ' ' + (x + w) + ' ' + y + 'Q' + (x + w) + ' ' + (y + h * 0.62) + ' ' + (x + w / 2) + ' ' + (y + h) + 'Q' + x + ' ' + (y + h * 0.62) + ' ' + x + ' ' + y + 'Z';
+      else d = 'M' + x + ' ' + y + 'H' + (x + w) + 'L' + (x + w / 2) + ' ' + (y + h - 8) + 'Z';
+      return '<path d="' + d + '" class="' + c + '"/>' + (kind === 'not' ? '<circle cx="' + (x + w / 2) + '" cy="' + (y + h - 4) + '" r="4" class="' + c + '"/>' : '');
+    }
+    if (kind === 'and') d = 'M' + x + ' ' + y + 'H' + (x + w - h / 2) + 'A' + (h / 2) + ' ' + (h / 2) + ' 0 0 1 ' + (x + w - h / 2) + ' ' + (y + h) + 'H' + x + 'Z';
+    else if (kind === 'or' || kind === 'xor') d = 'M' + x + ' ' + y + 'Q' + (x + w * 0.6) + ' ' + y + ' ' + (x + w) + ' ' + (y + h / 2) + 'Q' + (x + w * 0.6) + ' ' + (y + h) + ' ' + x + ' ' + (y + h) + 'Q' + (x + h * 0.32) + ' ' + (y + h / 2) + ' ' + x + ' ' + y + 'Z';
+    else d = 'M' + x + ' ' + y + 'L' + (x + w - 8) + ' ' + (y + h / 2) + 'L' + x + ' ' + (y + h) + 'Z';
+    var extra = kind === 'xor' ? '<path d="M' + (x - 6) + ' ' + y + 'Q' + (x - 6 + h * 0.32) + ' ' + (y + h / 2) + ' ' + (x - 6) + ' ' + (y + h) + '" class="' + c + '" fill="none"/>' : '';
+    if (kind === 'not') extra = '<circle cx="' + (x + w - 4) + '" cy="' + (y + h / 2) + '" r="4" class="' + c + '"/>';
+    return extra + '<path d="' + d + '" class="' + c + '"/>';
+  }
+  // bus width mark: a short slash across a wire with its width
+  function slash(x, y, n, vertical) {
+    return (vertical ? line(x - 5, y + 5, x + 5, y - 5, 'w sl') + t(x + 8, y, n, 'tw', 'start') : line(x - 5, y + 5, x + 5, y - 5, 'w sl') + t(x, y - 12, n, 'tw'));
+  }
+  function dot(x, y, on) { return '<circle cx="' + x + '" cy="' + y + '" r="3" class="jn' + (on ? ' on' : '') + '"/>'; }
+
+  /* ---------- the ALU symbol ---------- */
+  function aluSymbol() {
+    var b = vshape(60, 50, 150, 70) + t(135, 98, 'ALU', 'tg b');
+    b += path('M97 14V48', 'w', true) + path('M173 14V48', 'w', true) + t(97, 8, 'A', 'tl b') + t(173, 8, 'B', 'tl b');
+    b += slash(97, 30, 'N', true) + slash(173, 30, 'N', true);
+    b += path('M260 85H196', 'w', true) + t(268, 85, 'F', 'tl b', 'start') + slash(232, 85, '3');
+    b += path('M135 120V156', 'w', true) + slash(135, 138, 'N', true) + t(135, 166, 'Y', 'tl b');
+    return svg(290, 176, b, 'ALU symbol: inputs A and B, control F, output Y');
+  }
+
+  /* ---------- the textbook ALU (F2:0), drawn as in the lecture ---------- */
+  function harrisPath(F, A, B, N, bin) {
+    var use = F === null || F === undefined || F === 3 ? -1 : F, f2 = use >= 0 ? use >> 2 : -1, f10 = use >= 0 ? use & 3 : -1;
+    var mask = (1 << N) - 1, BB = f2 === 1 ? (~B) & mask : B, S = (A + BB + (f2 === 1 ? 1 : 0)) & mask;
+    var outs = [A & BB, A | BB, S, (S >> (N - 1)) & 1], on = function (x) { return x ? 'w on' : 'w'; }, b = '';
+    var useA = f10 >= 0, add = f10 >= 2, v = function (x) { return bin ? bin(x, N) : String(x); };
+    // inputs
+    b += t(150, 8, 'A', 'tl b') + t(330, 8, 'B', 'tl b') + slash(150, 30, 'N', true) + slash(330, 30, 'N', true);
+    // B and ~B into the 2:1 mux (F2)
+    b += path('M330 18V52H360V118', on(f2 === 0)) + path('M330 52H300V62', on(f2 === 1)) + gate('not', 288, 62, 24, 34, 'd', f2 === 1) + path('M300 96V118', on(f2 === 1)) + dot(330, 52, f2 >= 0);
+    b += mux(280, 118, 100, 32, 'd', f2 >= 0) + t(300, 128, '1', 'tx') + t(360, 128, '0', 'tx');
+    b += path('M380 134H560', on(f2 >= 0)) + t(566, 134, 'F₂' + (f2 >= 0 ? ' = ' + f2 : ''), 'tl', 'start');
+    if (use >= 0) b += t(344, 108, v(B), 'tx', 'start') + t(270, 82, v((~B) & mask), 'tx', 'end');
+    // BB bus
+    b += path('M330 150V180', on(useA)) + t(338, 166, 'BB', 'ts', 'start') + (use >= 0 ? t(372, 166, v(BB), 'tx', 'start') : '');
+    b += path('M262 180H500', 'w') + path('M262 180V228', on(add)) + path('M420 180V224', on(f10 === 1)) + path('M500 180V224', on(f10 === 0)) + dot(330, 180, useA) + dot(420, 180, f10 === 1);
+    if (useA) b += path(f10 >= 2 ? 'M330 180H262' : f10 === 1 ? 'M330 180H420' : 'M330 180H500', 'w on');
+    // A bus
+    b += path('M150 18V200H480', 'w') + path('M198 200V228', on(add)) + path('M400 200V224', on(f10 === 1)) + path('M480 200V224', on(f10 === 0)) + dot(198, 200, add) + dot(400, 200, f10 === 1);
+    if (useA) b += path('M150 18V200H' + (f10 >= 2 ? 198 : f10 === 1 ? 400 : 480), 'w on');
+    // adder, OR, AND
+    b += vshape(175, 228, 110, 52, add) + t(230, 262, '+', 'big');
+    b += path('M318 254H277', on(add && f2 === 1)) + t(322, 254, 'Cin = F₂' + (f2 >= 0 ? ' = ' + f2 : ''), 'ts', 'start');
+    b += path('M182 252H120', 'w') + t(112, 252, 'Cout', 'ts', 'end');
+    b += gate('or', 390, 224, 40, 46, 'd', f10 === 1) + gate('and', 470, 224, 40, 46, 'd', f10 === 0);
+    // into the output mux
+    b += path('M230 280V378', on(f10 === 2)) + t(238, 300, 'S', 'ts', 'start') + (use >= 0 ? t(238, 316, v(S), 'tx', 'start') : '');
+    if (f10 === 3) b += path('M230 280V300', 'w on');
+    b += path('M230 300H120V312', on(f10 === 3)) + dot(230, 300, f10 === 3) + t(176, 292, '[N−1]', 'tx');
+    b += mux(92, 312, 56, 30, 'd', f10 === 3) + t(120, 324, 'zero', 'ts') + t(120, 335, 'extend', 'ts') + path('M120 342V378', on(f10 === 3));
+    b += path('M410 270V378', on(f10 === 1)) + path('M490 270V378', on(f10 === 0));
+    if (use >= 0) b += t(418, 300, v(outs[1]), 'tx', 'start') + t(498, 300, v(outs[0]), 'tx', 'start') + t(128, 360, v(outs[3]), 'tx', 'start');
+    b += mux(80, 378, 460, 40, 'd', use >= 0);
+    [[120, '3'], [230, '2'], [410, '1'], [490, '0']].forEach(function (p) { b += t(p[0], 390, p[1], 'tx b'); });
+    b += path('M533 398H560', on(use >= 0)) + t(566, 398, 'F₁:₀' + (f10 >= 0 ? ' = ' + (f10 >> 1) + (f10 & 1) : ''), 'tl', 'start');
+    b += path('M310 418V456', on(use >= 0), true) + slash(310, 434, 'N', true) + t(310, 468, use >= 0 ? 'Y = ' + v(use === 7 ? outs[3] : outs[f10]) : 'Y', 'tl b');
+    return svg(640, 480, b, 'The textbook ALU: B or not B by F2, an adder, AND and OR gates, zero extend, and an output mux on F1:0');
+  }
+
   /* ---------- ALU datapath ---------- */
   function aluPath(r, A, B, cin, hex) {
-    var arith = r.sh === 0 && r.s2 === 0, logic = r.sh === 0 && r.s2 === 1, c = function (on) { return on ? 'w on' : 'w'; }, b = '';
-    // operand mux for the adder
-    b += t(12, 16, 'A = ' + hex(A), 'tm', 'start') + t(12, 88, 'B = ' + hex(B), 'tm', 'start');
-    b += box(120, 70, 66, 110, 'mx' + (arith ? ' act' : '')) + t(153, 82, 'S1 S0', 'ts');
-    ['0', 'B', '~B', '0'].forEach(function (s, i) { var on = arith && r.s10 === i; b += t(127, 102 + i * 20, s, on ? 'tm b okt' : 'tm', 'start') + t(180, 102 + i * 20, ('0' + i.toString(2)).slice(-2), 'tx', 'end'); });
-    b += path('M12 100H56V122H118', c(arith && r.s10 === 1)) + path('M56 122V142H118', c(arith && r.s10 === 2));
-    b += box(230, 20, 70, 70, 'unit' + (arith ? ' act' : '')) + t(265, 55, '+', 'big');
-    b += path('M12 30H228', c(arith || r.sh > 0), true) + path('M186 125H205V75H228', c(arith), true) + t(206, 140, arith ? hex(r.second) : '', 'tx');
-    b += path('M265 4V18', c(arith), true) + t(278, 8, 'Cin = ' + cin, 'ts', 'start');
-    // logic unit
-    b += box(120, 200, 130, 110, 'unit' + (logic ? ' act' : '')) + t(185, 214, 'logic unit', 'ts b');
-    ['AND', 'OR', 'XOR', 'NOT A'].forEach(function (s, i) { var on = logic && r.s10 === i; b += t(185, 236 + i * 19, s, on ? 'tm b okt' : 'tm'); });
-    b += path('M36 30V255H118', c(logic), true) + path('M56 142V275H118', c(logic && r.s10 < 3), true);
-    // mux S2
-    b += box(360, 60, 44, 190, 'mx' + (r.sh === 0 ? ' act' : '')) + t(382, 74, 'S2', 'ts') + t(382, 110, '0', 'tx') + t(382, 230, '1', 'tx');
-    b += path('M300 55H330V110H358', c(arith), true) + t(318, 128, arith ? hex(r.y) : '', 'tx') + path('M250 255H330V230H358', c(logic), true);
-    // shifts and the final mux
-    var sh = r.sh;
-    b += box(470, 40, 50, 260, 'mx act') + t(495, 54, 'S4 S3', 'ts');
-    [['00', 'S2 mux', 155], ['01', 'A << 1', 200], ['10', 'A >> 1', 240], ['11', '0', 280]].forEach(function (k, i) {
-      var on = sh === i;
-      b += t(495, k[2], k[0], 'tx') + (i ? t(430, k[2], k[1], on ? 'ts b okt' : 'ts', 'middle') : '');
-      if (i) b += path('M452 ' + k[2] + 'H468', c(on), true);
+    var arith = r.sh === 0 && r.s2 === 0, logic = r.sh === 0 && r.s2 === 1, on = function (x) { return x ? 'w on' : 'w'; }, b = '';
+    var sec = [0, B, (~B) & 255, 0][r.s10], aOut = (A + sec + cin) & 255, lOut = [A & B, A | B, A ^ B, (~A) & 255][r.s10], m3 = r.s2 ? lOut : aOut;
+    // inputs
+    b += t(14, 40, 'A', 'tl b', 'start') + t(14, 136, 'B', 'tl b', 'start') + t(30, 22, hex(A), 'tx', 'start') + t(30, 118, hex(B), 'tx', 'start');
+    // operand mux (S1 S0): 0, B, ~B, 0
+    b += path('M28 136H150', on(arith && r.s10 === 1)) + dot(86, 136, arith && r.s10 === 2) + path('M86 136V166H98', on(arith && r.s10 === 2)) + gate('not', 98, 156, 26, 20, 'r', arith && r.s10 === 2) + path('M124 166H150', on(arith && r.s10 === 2));
+    b += path('M128 106H150', on(arith && r.s10 === 0)) + t(122, 106, '0', 'tm', 'end') + path('M128 196H150', on(arith && r.s10 === 3)) + t(122, 196, '0', 'tm', 'end') + t(108, 150, '~B', 'ts', 'end');
+    b += mux(150, 88, 44, 126, 'r', arith);
+    ['0', '1', '2', '3'].forEach(function (k, i) { b += t(160, 106 + i * 30, k, 'tx b'); });
+    b += path('M172 210V232', on(arith)) + t(172, 242, 'S1 S0', 'ts');
+    // adder with Cin
+    b += path('M28 40H258V82H270', on(arith || r.sh > 0)) + path('M194 151H232V100H270', on(arith)) + t(238, 116, hex(sec), 'tx', 'start');
+    b += '<circle cx="292" cy="90" r="22" class="mx' + (arith ? ' act' : '') + '"/>' + t(292, 91, '+', 'big');
+    b += path('M292 18V66', on(arith && cin), true) + t(300, 22, 'Cin = ' + cin, 'ts', 'start');
+    b += path('M314 90H440', on(arith), true) + t(326, 80, 'ALUout[7:0]', 'ts', 'start') + t(326, 102, hex(aOut), 'tx', 'start');
+    // logic unit: AND, OR, XOR, NOT A into a 4:1 mux (S1 S0)
+    var gy = [272, 318, 364, 410], kinds = ['and', 'or', 'xor', 'not'], names = ['AND', 'OR', 'XOR', '~A'];
+    b += path('M44 40V' + (gy[3] + 6), 'w') + dot(44, 40, logic) + path('M66 136V' + (gy[2] + 6), 'w') + dot(66, 136, logic && r.s10 < 3);
+    if (logic) b += path('M44 40V' + (gy[r.s10] + (r.s10 === 3 ? 0 : -6)), 'w on') + (r.s10 < 3 ? path('M66 136V' + (gy[r.s10] + 6), 'w on') : '');
+    gy.forEach(function (y, i) {
+      var g = logic && r.s10 === i;
+      if (i < 3) b += path('M44 ' + (y - 6) + 'H118', on(g)) + path('M66 ' + (y + 6) + 'H118', on(g)) + dot(44, y - 6, g) + dot(66, y + 6, g);
+      else b += path('M44 ' + y + 'H118', on(g)) + dot(44, y, g);
+      b += gate(kinds[i], 118, y - 16, 46, 32, 'r', g) + t(i === 3 ? 133 : 140, y, i === 3 ? '~A' : names[i], 'gl');
+      b += path('M164 ' + y + 'H240', on(g));
     });
-    b += path('M404 155H468', c(sh === 0), true);
-    b += path('M520 170H560', 'w on', true) + box(562, 150, 100, 40, 'reg act') + t(612, 170, 'Y = ' + hex(r.y), 'tm b');
-    return svg(680, 320, b, 'ALU datapath');
+    b += mux(240, 254, 44, 176, 'r', logic);
+    gy.forEach(function (y, i) { b += t(250, y, String(i), 'tx b'); });
+    b += path('M262 426V446', on(logic)) + t(262, 456, 'S1 S0', 'ts');
+    b += path('M284 342H400V200H440', on(logic), true) + t(292, 332, 'logicout[7:0]', 'ts', 'start') + t(292, 354, hex(lOut), 'tx', 'start');
+    // 2:1 mux (S2)
+    b += mux(440, 66, 40, 158, 'r', r.sh === 0);
+    b += t(450, 90, '0', 'tx b') + t(450, 200, '1', 'tx b') + path('M460 220V246', on(r.sh === 0)) + t(460, 256, 'S2', 'ts');
+    // final 4:1 mux (S4 S3): S2 mux, A << 1, A >> 1, 0
+    b += path('M480 145H510V96H600', on(r.sh === 0), true) + t(520, 84, hex(m3), 'tx', 'start');
+    [['A << 1', 1], ['A >> 1', 2], ["8'b0", 3]].forEach(function (k) { var y = 96 + k[1] * 50; b += t(568, y, k[0], r.sh === k[1] ? 'tm b okt' : 'tm', 'end') + path('M574 ' + y + 'H600', on(r.sh === k[1]), true); });
+    b += mux(600, 72, 46, 196, 'r', true);
+    [0, 1, 2, 3].forEach(function (i) { b += t(611, 96 + i * 50, String(i), 'tx b'); });
+    b += path('M623 264V290', 'w on') + t(623, 300, 'S4 S3', 'ts');
+    b += path('M646 170H690', 'w on', true) + t(698, 170, 'Y = ' + hex(r.y), 'tm b', 'start');
+    return svg(800, 470, b, 'ALU datapath');
   }
 
   /* ---------- gates ---------- */
@@ -186,5 +283,5 @@
     return svg(640, 310, b, '16-bit parity generator');
   }
 
-  return { taskGraph: taskGraph, gantt: gantt, serialBus: serialBus, addrBus: addrBus, timing: timing, aluPath: aluPath, par3: par3, par16: par16, POS: POS };
+  return { taskGraph: taskGraph, gantt: gantt, serialBus: serialBus, addrBus: addrBus, timing: timing, aluPath: aluPath, harrisPath: harrisPath, aluSymbol: aluSymbol, gate: gate, mux: mux, par3: par3, par16: par16, POS: POS };
 });

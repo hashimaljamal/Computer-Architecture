@@ -323,14 +323,9 @@
       var r = S.harrisAlu(A, B, F, N), lines = ['Y = A AND BB', 'Y = A OR BB', 'Y = S (the sum)', 'Y = zero-extended S' + (N - 1) + ' (the sign of A − B)'];
       el.innerHTML = '<div class="w-bar"><label class="w-in">A <input type="number" min="0" max="15" value="' + A + '" data-a></label><label class="w-in">B <input type="number" min="0" max="15" value="' + B + '" data-b></label>' +
         '<span class="w-l">F<sub>2:0</sub></span>' + S.HARRIS.map(function (n, f) { return '<button type="button" class="pb' + (f === F ? ' on' : '') + '" data-f="' + f + '"' + (f === 3 ? ' title="not used"' : '') + '>' + bin(f, 3) + ' ' + esc(n) + '</button>'; }).join('') + '</div>' +
+        (window.IODraw && IODraw.harrisPath ? '<div class="lesson-iomc w-svg">' + IODraw.harrisPath(F, A, B, N, bin) + '</div>' : '') +
         (F === 3 ? '<p class="w-out">F = 011 is not used.</p>' :
-        '<table class="w-t mono w-alu"><tbody>' +
-        '<tr><td>A</td><td>' + nb(A) + '</td><td>' + A + '</td></tr><tr><td>B</td><td>' + nb(B) + '</td><td>' + B + '</td></tr>' +
-        '<tr><td>BB = F2 ? ~B : B</td><td>' + nb(r.BB) + '</td><td>F2 = ' + r.f2 + '</td></tr>' +
-        '<tr><td>S = A + BB + F2</td><td>' + nb(r.S) + '</td><td>carry out ' + r.cout + '</td></tr>' +
-        '<tr class="' + (r.f10 === 0 ? 'sel' : '') + '"><td>mux 0: A AND BB</td><td>' + nb(r.outs[0]) + '</td><td></td></tr><tr class="' + (r.f10 === 1 ? 'sel' : '') + '"><td>mux 1: A OR BB</td><td>' + nb(r.outs[1]) + '</td><td></td></tr>' +
-        '<tr class="' + (r.f10 === 2 ? 'sel' : '') + '"><td>mux 2: S</td><td>' + nb(r.outs[2]) + '</td><td></td></tr><tr class="' + (r.f10 === 3 ? 'sel' : '') + '"><td>mux 3: SLT</td><td>' + nb(r.outs[3]) + '</td><td></td></tr>' +
-        '</tbody></table><p class="w-out"><b>' + esc(r.op) + '</b>: F1:0 = ' + bin(r.f10, 2) + ' picks mux input ' + r.f10 + '. ' + lines[r.f10] + ' = <b class="mono">' + nb(r.y) + '</b> (' + r.y + ').</p>');
+        '<p class="w-out"><b>' + esc(r.op) + '</b> with A = ' + nb(A) + ' (' + A + ') and B = ' + nb(B) + ' (' + B + '): F2 = ' + r.f2 + ' so BB = ' + nb(r.BB) + (r.f2 ? ' (~B, and Cin = 1)' : ' (B)') + '; F1:0 = ' + bin(r.f10, 2) + ' picks mux input ' + r.f10 + ', so ' + lines[r.f10] + ' = <b class="mono">' + nb(r.y) + '</b> (' + r.y + ').</p>');
     }
     el.addEventListener('click', function (e) { var b = e.target.closest('[data-f]'); if (b) { F = +b.getAttribute('data-f'); draw(); } });
     el.addEventListener('change', function (e) {

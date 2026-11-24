@@ -115,3 +115,17 @@
   .lesson-iomc .grid2 { grid-template-columns: 1fr; }
   .lesson-iomc .mc b { font-size: 17px; }
 }
+/* logic symbols */
+.lesson-iomc .iod .g.act { stroke: var(--ba); stroke-width: 2.2; fill: var(--decf); }
+.lesson-iomc .iod polygon.mx, .lesson-iomc .iod path.mx, .lesson-iomc .iod circle.mx { stroke: var(--boxs); }
+.lesson-iomc .iod polygon.mx.act, .lesson-iomc .iod path.mx.act, .lesson-iomc .iod circle.mx.act { stroke: var(--ba); }
+.lesson-iomc .iod .w.sl { stroke: var(--tpri); stroke-width: 1.4; }
+.lesson-iomc .iod .tw { font-size: 11px; font-style: italic; fill: var(--tsec); }
+.lesson-iomc .iod .jn { fill: var(--bs); }
+.lesson-iomc .iod .jn.on { fill: var(--wa); }
+.lesson-iomc .iod .gl { font-size: 10px; font-weight: 700; fill: var(--tpri); letter-spacing: -.02em; }
+/* phones: keep diagram text readable; wide diagrams scroll sideways inside their box */
+@media (max-width: 600px) {
+  .lesson-iomc .fig, .lesson-iomc .gfig, .lesson-lecs .w-svg { overflow-x: auto; }
+  .lesson-iomc .fig > svg.iod, .lesson-iomc .gfig > svg.iod, .lesson-lecs .w-svg > svg.iod { min-width: 520px; }
+}
