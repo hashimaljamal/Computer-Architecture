@@ -1,0 +1,35 @@
+/* LC-3 Programs tab */
+.lesson-lc3p { --left: 420px; }
+@media (min-width: 1300px) { .lesson-lc3p { --left: 460px; } }
+.lesson-lc3p .lp-src { margin: -4px 0 12px; }
+.lesson-lc3p .fl { display: block; font-size: 12px; font-weight: 600; color: var(--tsec); text-transform: uppercase; letter-spacing: .04em; margin: 10px 0 4px; }
+.lesson-lc3p pre { margin: 0; font-size: 13px; line-height: 1.55; background: var(--s1); border: 1px solid var(--bd); border-radius: 8px; padding: 8px 10px; overflow-x: auto; white-space: pre; }
+.lesson-lc3p .lp-map, .lesson-lc3p .lp-tests { margin: 8px 0 0; padding-left: 20px; font-size: 14px; line-height: 1.55; }
+.lesson-lc3p textarea { display: block; width: 100%; resize: none; overflow-y: hidden; overflow-x: auto; white-space: pre; font: 13px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; padding: 8px 10px; tab-size: 4; min-height: 120px; }
+.lesson-lc3p textarea[data-f="ans"] { white-space: pre-wrap; font-family: inherit; font-size: 14px; resize: vertical; overflow-y: auto; }
+.lesson-lc3p .pactions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 0; }
+.lesson-lc3p .lp-results { border: 1px solid var(--bd); border-radius: 10px; padding: 8px 14px; margin: 0 0 12px; background: var(--s2); }
+.lesson-lc3p .lp-results ul { list-style: none; margin: 4px 0 0; padding: 0; font-size: 14px; }
+.lesson-lc3p .lp-results li { padding: 4px 0; border-top: 1px solid var(--bd); }
+.lesson-lc3p .lp-results li.ok { color: var(--tacc); }
+.lesson-lc3p .lp-results li.bad { color: var(--tdan); }
+.lesson-lc3p .lp-results .muted { color: var(--tsec); }
+.lesson-lc3p .okmsg { color: var(--tacc); margin: 4px 0; }
+.lesson-lc3p .warnmsg { color: var(--tdan); margin: 4px 0; }
+.lesson-lc3p .lp-h { margin: 16px 0 6px; font-size: 15px; }
+.lesson-lc3p .lp-note, .lesson-lc3p .lp-notes p { font-size: 14px; line-height: 1.55; border-left: 3px solid var(--ba); background: var(--hl); padding: 8px 12px; border-radius: 0 8px 8px 0; margin: 10px 0; }
+.lesson-lc3p .tablewrap { overflow-x: auto; border: 1px solid var(--bd); border-radius: 10px; }
+.lesson-lc3p table.enc { width: 100%; border-collapse: collapse; font-size: 14px; }
+.lesson-lc3p table.enc th, .lesson-lc3p table.enc td { padding: 6px 10px; border-bottom: 1px solid var(--bd); text-align: left; white-space: nowrap; }
+.lesson-lc3p table.enc th { background: var(--s2); color: var(--tsec); font-weight: 600; font-size: 12.5px; }
+.lesson-lc3p .lbl { color: var(--tacc); }
+.lesson-lc3p .lp-k { color: var(--tsec); font-size: 13px; }
+.lesson-lc3p .lp-cell { display: inline-flex; align-items: center; gap: 4px; }
+.lesson-lc3p .lp-cell input { width: 92px; height: 30px; }
+.lesson-lc3p .lp-cell input.good { border-color: var(--tacc); box-shadow: 0 0 0 1px var(--tacc); }
+.lesson-lc3p .lp-cell input.wrong { border-color: var(--tdan); box-shadow: 0 0 0 1px var(--tdan); }
+.lesson-lc3p .lp-answer { font-size: 15px; line-height: 1.6; }
+.lesson-lc3p .lp-answer ul { padding-left: 20px; }
+.lesson-lc3p .lp-answer li { margin: 0 0 8px; }
+.lesson-lc3p .errs { color: var(--tdan); font-size: 14px; padding-left: 18px; }
+@media (max-width: 600px) { .lesson-lc3p textarea { font-size: 16px; } .lesson-lc3p .lp-cell input { width: 80px; } }

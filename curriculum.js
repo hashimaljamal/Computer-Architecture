@@ -31,6 +31,7 @@ window.Curriculum = {
   ],
   PRACTICE: {
     'lc3-encoding': ['l2', 'l6', 'l7'],
+    'lc3-programs': ['l1', 'l3', 'l4', 'l5', 'l6', 'l7'],
     'pipelining': ['l8', 'l9', 'l10'],
     'memory-design': ['l1', 'l11'],
     'cache': ['l12'],

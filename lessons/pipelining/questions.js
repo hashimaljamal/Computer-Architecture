@@ -20,7 +20,7 @@
       id: 'q1',
       tab: 'Q1',
       title: 'Question 1',
-      prompt: ASK + ' For example, there is a data dependency for register R1 from the LDR instruction to the ADD instruction, that is, R1 LDR ADD.',
+      prompt: ASK + ' For example, there is a data dependency for register R1 from the LDR instruction to the ADD instruction, that is, R1 LDR ADD. (Also Practice problem 3, Q6.)',
       source:
         'Loop: LDR R1, R2, #0 #Inst-1\n' +
         '      ADD R1, R1, #1 #Inst-2\n' +

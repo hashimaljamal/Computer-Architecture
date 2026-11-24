@@ -24,6 +24,9 @@
       <div class="presets qs" hidden data-o="qs-bus">
         <button type="button" class="pb qbtn" data-q="ex6">Ex 6: 1 GB, 26 address lines</button>
         <button type="button" class="pb qbtn" data-q="ex7">Ex 7: 512 KB, 32-bit bus</button>
+        <button type="button" class="pb qbtn" data-q="ex8">Ex 8: 32 MB, 22 address lines</button>
+        <button type="button" class="pb qbtn" data-q="ex9">Ex 9: 12 address lines, 8-bit bus</button>
+        <button type="button" class="pb qbtn" data-q="ex10">Ex 10: 64 MB, 22 address lines</button>
       </div>
       <div class="modes" role="group" aria-label="View">
         <button type="button" class="pb on" data-mode="solution" aria-pressed="true">Solution</button>
@@ -293,6 +296,7 @@
       var f = MQ.facts(q);
       if (q.type === 'design') solver.preset(q.m, q.w, q.size, q.unit, q.bus);
       else if (q.type === 'blocks') { F('bp').value = f.P; F('blocks').value = q.blocks; renderBlocks(); }
+      else if (q.ask === 'size') { F('bsz').value = ''; F('baw').value = q.P; F('bbus').value = q.bus; bOrder = ['baw', 'bbus']; bCompute(); }
       else bSet(q.size, q.unit, q.P ? 'baw' : 'bbus', q.P || q.bus);
       O('prompt-' + q.type).textContent = MQ.prompt(q);
       Array.prototype.forEach.call(O('qs-' + q.type).querySelectorAll('[data-q]'), function (b) {
@@ -343,7 +347,8 @@
       return MQ.blocksSteps({ P: parseInt(F('bp').value, 10), blocks: parseInt(F('blocks').value, 10) });
     }
     function busTutorial() {
-      if (ST.mode === 'practice') { var q = qOf(ST.cur.bus); return MQ.busSteps({ size: q.size, unit: q.unit, bus: q.bus || null, P: q.P || null }); }
+      if (ST.mode === 'practice') { var q = qOf(ST.cur.bus); return MQ.busSteps({ size: q.size, unit: q.unit, bus: q.bus || null, P: q.P || null, ask: q.ask }); }
+      if (bOrder.indexOf('bsz') < 0 && bOrder.length === 2) return MQ.busSteps({ P: +F('baw').value, bus: +F('bbus').value, ask: 'size' });
       var size = +F('bsz').value, unit = F('bu').value, useBus = bOrder.indexOf('bbus') >= 0 && bOrder.indexOf('baw') < 0;
       if (!(size > 0) || bOrder.length < 2) return [];
       return MQ.busSteps({ size: size, unit: unit, bus: useBus ? +F('bbus').value : null, P: useBus ? null : +F('baw').value });
@@ -395,7 +400,11 @@
         F('bu').value = u; bPrevUnit = u;
         F('bsz').value = L.rnd(bytes / L.MULT[u]);
         r = B.solve(+F('bsz').value, u, v.bbus, null);
-        if (!r.ok || r.P !== v.baw) r = { ok: true, bus: v.bbus, P: v.baw, lines: B.working(+F('bsz').value, u, v.bbus, v.baw).lines };
+        var p2 = function (x) { var k = Math.log2(x); return Number.isInteger(k) ? '2^' + k : String(x); }, tb = Math.pow(2, v.baw) * v.bbus;
+        r = { ok: true, bus: v.bbus, P: v.baw, size: true, lines: [
+          v.baw + ' address lines reach 2^' + v.baw + ' locations.',
+          'Each location holds ' + v.bbus + ' bits: 2^' + v.baw + ' \u00d7 ' + v.bbus + ' = ' + p2(tb) + ' bits.',
+          '8 bits = 1 byte: ' + p2(tb) + ' \u00f7 2^3 = ' + p2(bytes) + ' bytes = ' + L.rnd(bytes / L.MULT[u]) + ' ' + u + '.'] };
       } else if (d === 'bbus') {
         r = B.solve(v.bsz, u, null, v.baw);
         if (r.ok) F('bbus').value = r.bus;
@@ -405,7 +414,7 @@
       }
       if (!r.ok) { out.innerHTML = ''; bShow(r.error, true); return; }
       bShow('', false);
-      out.innerHTML = '<p class="cap"><b>' + r.bus + '-bit data bus, ' + r.P + ' address lines.</b></p><ol class="wk">' +
+      out.innerHTML = '<p class="cap"><b>' + (r.size ? 'Memory size: ' + F('bsz').value + ' ' + F('bu').value + ' (' + r.P + ' address lines, ' + r.bus + '-bit data bus).' : r.bus + '-bit data bus, ' + r.P + ' address lines.') + '</b></p><ol class="wk">' +
         r.lines.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ol>';
     }
 

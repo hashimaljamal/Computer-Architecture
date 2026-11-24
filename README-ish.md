@@ -27,7 +27,8 @@ The switch at the top moves between **Practice problems** (the tabs below) and *
 | Tab | What it does |
 |---|---|
 | **Instruction Set Encoding** | Turn LC-3 assembly into binary and hexadecimal, with every instruction broken into its bit fields. Holds the four practice questions and their printed answer key. |
-| **Pipelining** | Find the data dependencies in a piece of LC-3 code and see them drawn as arrows. Holds the four pipelining practice questions and their printed answer key. |
+| **Pipelining** | Two kinds of question. *Data dependencies*: find them in a piece of LC-3 code and see them drawn as arrows (four questions with the printed key). *Pipeline registers*: what PC, NPC, IR, A, B, ALUOut1, ALUOut2, LMD and WriteRegValue hold in every clock cycle (Practice problem 3, Q1). |
+| **LC-3 Programs** | The homework, practice-problem and mock-quiz LC-3 questions in three groups: *Write a program* (your code runs in an LC-3 simulator against test data, with a model solution and tutorial), *Trace a program* (fill in PC, registers, offsets and flags), and *Concepts* (short written answers). |
 | **Memory System Design** | Design a RAM memory system. Describe the RAM chips and the processor, and it works out how many chips you need, how they are arranged, and draws the schematic. |
 | **I/O Systems** | Bus time-multiplexing (serialization, address/data sharing, memory size) and strobe vs handshake timing. Q1, Q1b, Q2. |
 | **Multicore** | Scheduling a task graph on several cores: exact shortest schedule, critical path, speedup. Q3. |
@@ -185,6 +186,8 @@ lessons/
     lc3.js                     the LC-3 assembler and instruction formats (no page code)
     questions.js               the four questions, the printed key, and the key comparison
   pipelining/
+    regs.js                    what each pipeline register holds in every cycle (no page code)
+    regs-view.js               the Pipeline registers view
     pipelining.js              the lesson's page (builds its panel)
     pipelining.css             the lesson's styles
     deps.js                    reads LC-3 code and finds the data dependencies (no page code)
@@ -197,6 +200,10 @@ lessons/
     questions.js               the seven questions, the printed key, practice boxes and tutorials
     draw.js                    the SVG pictures: task graph, schedules, buses, timing, ALU, parity
     guide.js                   the Lesson pop-ups for those three tabs
+  lc3-programs/
+    programs.js                the write / trace / concept questions, model solutions and the test runner (no page code)
+    lc3-programs.js            the tab's page
+    guide.js                   its Lesson pop-up
   lectures/
     lectures.js                the Lessons section: one scrolling page with the filter and contents
     lectures.css               its styles
@@ -223,6 +230,8 @@ tests/
   pipelining.test.js           tests for the Pipelining lesson
   cache.test.js                tests for the Cache lesson
   io-multicore.test.js         tests for the I/O, Multicore & ALU lesson
+  pipe-regs.test.js            the pipeline-register question against hand-worked values
+  lc3-programs.test.js         every model solution assembles and passes its tests; trace tables match the simulator
   lectures.test.js             every lecture builds; the simulators reproduce the lectures' numbers
 test.js                        runs every tests/*.test.js
 .github/workflows/test.yml     runs the tests on every push

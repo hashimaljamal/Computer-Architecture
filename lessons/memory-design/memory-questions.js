@@ -16,10 +16,13 @@
     { id: 'ex1', type: 'design', tab: 'Ex 1: 2 MB, 32-bit', m: 18, w: 16, size: 2, unit: 'MB', bus: 32 },
     { id: 'ex2', type: 'design', tab: 'Ex 2: 64 KB, 16-bit', m: 12, w: 16, size: 64, unit: 'KB', bus: 16 },
     { id: 'ex3', type: 'design', tab: 'Ex 3: 128 KB, 32-bit', m: 14, w: 8, size: 128, unit: 'KB', bus: 32 },
-    { id: 'ex4', type: 'design', tab: 'Ex 4: 1 MB, 32-bit', m: 17, w: 8, size: 1, unit: 'MB', bus: 32 },
-    { id: 'ex5', type: 'blocks', tab: 'Ex 5: 32 MB, 4 blocks', size: 32, unit: 'MB', bus: 16, blocks: 4 },
+    { id: 'ex4', type: 'design', tab: 'Ex 4: 1 MB, 32-bit', m: 17, w: 8, size: 1, unit: 'MB', bus: 32, src: 'also Practice problem 3, Q2' },
+    { id: 'ex5', type: 'blocks', tab: 'Ex 5: 32 MB, 4 blocks', size: 32, unit: 'MB', bus: 16, blocks: 4, src: 'also Practice problem 3, Q3' },
     { id: 'ex6', type: 'bus', tab: 'Ex 6: 1 GB, 26 address lines', size: 1, unit: 'GB', P: 26 },
-    { id: 'ex7', type: 'bus', tab: 'Ex 7: 512 KB, 32-bit bus', size: 512, unit: 'KB', bus: 32 }
+    { id: 'ex7', type: 'bus', tab: 'Ex 7: 512 KB, 32-bit bus', size: 512, unit: 'KB', bus: 32 },
+    { id: 'ex8', type: 'bus', tab: 'Ex 8: 32 MB, 22 address lines', size: 32, unit: 'MB', P: 22, src: 'Practice problem 1, Q5' },
+    { id: 'ex9', type: 'bus', tab: 'Ex 9: 12 address lines, 8-bit bus', size: 4, unit: 'KB', P: 12, bus: 8, ask: 'size', src: 'Practice problem 1, Q6' },
+    { id: 'ex10', type: 'bus', tab: 'Ex 10: 64 MB, 22 address lines', size: 64, unit: 'MB', P: 22, src: 'Practice problem 1, Q7; Lecture 1' }
   ];
 
   function p2(n) { return B.isPow2(n) ? '2^' + Math.round(Math.log2(n)) : String(n); }
@@ -38,6 +41,7 @@
       f.map = B.blockMap(f.P, q.blocks);
     } else {
       f.bus = q.bus || bits / Math.pow(2, q.P);
+      f.bytes = bits / 8;
       f.P = q.P || L.lg(bits / q.bus);
     }
     return f;
@@ -47,15 +51,17 @@
     var size = q.size + ' ' + q.unit;
     if (q.type === 'design') {
       return 'A processor has a ' + q.bus + '-bit data bus and needs ' + size + ' of memory. The RAM ICs available are 2^' + q.m + ' × ' + q.w +
-        ' bits. Find the address lines the memory needs, the columns and rows of ICs, the total number of ICs, and the decoder.';
+        ' bits. Find the address lines the memory needs, the columns and rows of ICs, the total number of ICs, and the decoder.' + (q.src ? ' (' + q.src + ')' : '');
     }
     if (q.type === 'blocks') {
       return 'A processor with a ' + q.bus + '-bit data bus has ' + size + ' of memory, split into ' + q.blocks + ' equal blocks (Block0 to Block' + (q.blocks - 1) +
-        '). A decoder with AS on its enable picks the block through active-low chip selects (CSBlock*). Find the address lines that select a block and the first and last address of each block.';
+        '). A decoder with AS on its enable picks the block through active-low chip selects (CSBlock*). Find the address lines that select a block and the first and last address of each block.' + (q.src ? ' (' + q.src + ')' : '');
     }
-    return q.P
+    var src = q.src ? ' (' + q.src + ')' : '';
+    if (q.ask === 'size') return 'A memory has ' + q.P + ' address lines and an ' + q.bus + '-bit data bus. What is the size of the memory in bytes?' + src;
+    return (q.P
       ? 'A computer has ' + size + ' of memory and a processor with ' + q.P + ' address lines. How wide is the data bus?'
-      : 'A computer has ' + size + ' of memory and a ' + q.bus + '-bit data bus. How many address lines does the processor need?';
+      : 'A computer has ' + size + ' of memory and a ' + q.bus + '-bit data bus. How many address lines does the processor need?') + src;
   }
 
   /* ---------- practice boxes ---------- */
@@ -85,6 +91,12 @@
         add('l' + r.i, 'Block' + r.i, 'Last address (hex)', 'hex', r.last, 'Select bits ' + (r.sel || 'none') + ' followed by all 1s.', r.lastHex);
       });
     } else {
+      if (q.ask === 'size') {
+        add('loc', 'Working', 'Locations (as a power of 2)', 'num', Math.pow(2, q.P), '2 to the power of the address lines.', p2(Math.pow(2, q.P)));
+        add('bits', 'Working', 'Memory size in bits', 'num', f.bits, 'Locations × data bus width.', p2(f.bits));
+        add('bytes', 'Answer', 'Memory size in bytes', 'num', f.bytes, 'Bits ÷ 8. (' + q.size + ' ' + q.unit + ' = ' + p2(f.bytes) + ' bytes.)', p2(f.bytes) + ' = ' + q.size + ' ' + q.unit);
+        return out;
+      }
       add('bits', 'Working', 'Memory size in bits (as a power of 2, e.g. 2^33)', 'num', f.bits, 'Bytes × 2^3 = bits.', p2(f.bits));
       if (q.P) add('bus', 'Answer', 'Data bus (bits)', 'num', f.bus, 'Data bus = memory bits ÷ 2^(address lines).');
       else add('P', 'Answer', 'Address lines', 'num', f.P, 'Locations = memory bits ÷ bus width. Address lines = log₂(locations).');
@@ -179,7 +191,16 @@
   }
 
   function busSteps(p) {
-    // p = { size, unit, bus|null, P|null }
+    // p = { size, unit, bus|null, P|null, ask }
+    if (p.ask === 'size') {
+      var loc = Math.pow(2, p.P), tb = loc * p.bus, by = tb / 8, u = L.pickUnit(by), st = [];
+      st.push({ title: 'What we know', body: '<p>The memory has <b>' + p.P + ' address lines</b> and a <b>' + p.bus + '-bit data bus</b>.</p><p class="center"><b>memory bits = 2^(address lines) × data bus</b></p>' });
+      st.push({ title: 'Locations', type: 'num', value: loc, answer: '2^' + p.P, body: '<p>' + p.P + ' address lines pick one of 2^' + p.P + ' locations.</p>', ask: 'How many locations?', hint: '2 to the power of the address lines.' });
+      st.push({ title: 'Memory in bits', type: 'num', value: tb, answer: p2(tb), body: '<p>Each location holds ' + p.bus + ' bits: 2^' + p.P + ' × ' + p.bus + ' = ' + p2(tb) + ' bits.</p>', ask: 'How many bits?', hint: 'Locations × bus width.' });
+      st.push({ title: 'Memory in bytes', type: 'num', value: by, answer: p2(by), body: '<p>8 bits = 1 byte: ' + p2(tb) + ' ÷ 2^3 = ' + p2(by) + ' bytes = <b>' + L.rnd(by / L.MULT[u]) + ' ' + u + '</b> (1 KB = 2^10, 1 MB = 2^20, 1 GB = 2^30 bytes).</p>', ask: 'How many bytes?', hint: 'Bits ÷ 8.' });
+      st.push({ title: 'Check', body: '<p>' + L.rnd(by / L.MULT[u]) + ' ' + u + ' = ' + p2(by) + ' bytes = ' + p2(tb) + ' bits = 2^' + p.P + ' locations × ' + p.bus + ' bits. ✓</p>' });
+      return st;
+    }
     var r = B.solve(p.size, p.unit, p.bus || null, p.P || null);
     if (!r.ok) return [];
     var bits = bitsOf(p.size, p.unit), s = [];

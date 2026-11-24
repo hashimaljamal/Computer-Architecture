@@ -7,8 +7,10 @@
   'use strict';
 
   var TEMPLATE = `
-    <h2 class="lesson-title">Pipelining: Data Dependencies</h2>
+    <h2 class="lesson-title">Pipelining</h2>
     <div class="lbar">
+      <div class="seg" role="group" aria-label="Question type" data-o="cats"></div>
+      <span class="sep" aria-hidden="true"></span>
       <div class="presets qs" data-o="qs" role="group" aria-label="Questions"></div>
       <div class="modes" role="group" aria-label="View">
         <button type="button" class="pb on" data-mode="solution" aria-pressed="true">Solution</button>
@@ -17,6 +19,8 @@
         <button type="button" class="pb lessonbtn" data-lesson aria-haspopup="dialog">Lesson</button>
       </div>
     </div>
+    <div data-o="regview" hidden><div data-o="regtut" hidden></div><div data-o="regbody"></div></div>
+    <div data-o="depview">
     <div class="split"><div class="col-a">
     <p class="prompt" data-o="prompt"></p>
 
@@ -66,6 +70,7 @@
       </ol>
     </details>
     </div></div>
+    </div>
   `;
 
   function esc(s) {
@@ -97,7 +102,7 @@
     }
 
     var S = {
-      q: QS[0], src: '', mode: 'solution', tut: false, sel: -1,
+      q: QS[0], src: '', mode: 'solution', tut: false, sel: -1, cat: 'deps',
       parsed: null, ana: null, cmp: null, matches: false,
       entries: [{ dep: '', src: '', reg: '' }], rows: null, shown: false
     };
@@ -288,7 +293,10 @@
     }
 
     /* ---------- the whole page ---------- */
+    var CATS = [{ id: 'deps', title: 'Data dependencies' }, { id: 'regs', title: 'Pipeline registers' }];
     function renderButtons() {
+      O('cats').innerHTML = CATS.map(function (c) { return '<button type="button" class="pb qbtn' + (c.id === S.cat ? ' on' : '') + '" data-cat="' + c.id + '" aria-pressed="' + (c.id === S.cat) + '">' + c.title + '</button>'; }).join('');
+      if (S.cat === 'regs') { O('qs').innerHTML = '<button type="button" class="pb qbtn on" aria-pressed="true">' + PipeRegs.QUESTION.tab + '</button>'; return; }
       O('qs').innerHTML = QS.map(function (q) {
         return '<button type="button" class="pb qbtn' + (q.id === S.q.id ? ' on' : '') + '" data-q="' + q.id + '" aria-pressed="' + (q.id === S.q.id) + '">' + q.tab + '</button>';
       }).join('');
@@ -326,9 +334,16 @@
       return steps;
     }
     var tut = Tutorial.mount(O('tut'), { steps: tutorialSteps, mode: function () { return S.mode; }, empty: 'Fix the errors in the code to see the steps.' });
+    var rview = PipeRegsView.mount(O('regbody'), { mode: function () { return S.mode; } });
+    var rtut = Tutorial.mount(O('regtut'), { steps: rview.steps, mode: function () { return S.mode; } });
 
     function renderMode() {
-      var practice = S.mode === 'practice';
+      var practice = S.mode === 'practice', regs = S.cat === 'regs';
+      O('regview').hidden = !regs; O('depview').hidden = regs;
+      if (regs) {
+        O('regtut').hidden = !S.tut; O('regbody').hidden = S.tut;
+        if (S.tut) rtut.refresh(); else rview.render();
+      }
       O('solution').hidden = practice || S.tut;
       O('practice').hidden = !practice || S.tut;
       O('tutwrap').hidden = !S.tut;
@@ -397,9 +412,10 @@
       renderDiagram();
     });
     el.addEventListener('click', function (e) {
-      var t = e.target.closest('[data-q],[data-mode],[data-row],[data-act],[data-rm],[data-tut]');
-      if (!t) return;
-      if (t.hasAttribute('data-q')) loadQuestion(t.getAttribute('data-q'));
+      var t = e.target.closest('[data-cat],[data-q],[data-mode],[data-row],[data-act],[data-rm],[data-tut]');
+      if (!t || (O('regview').contains(t) && !t.hasAttribute('data-mode'))) return;
+      if (t.hasAttribute('data-cat')) { S.cat = t.getAttribute('data-cat'); if (rtut.reset) rtut.reset(); renderButtons(); renderMode(); }
+      else if (t.hasAttribute('data-q')) loadQuestion(t.getAttribute('data-q'));
       else if (t.hasAttribute('data-mode')) { S.mode = t.getAttribute('data-mode'); renderMode(); renderDiagram(); }
       else if (t.hasAttribute('data-tut')) { S.tut = !S.tut; renderMode(); }
       else if (t.hasAttribute('data-row')) toggleRow(+t.getAttribute('data-row'));

@@ -110,13 +110,13 @@ ok(A.toBits(-12, 9) === '111110100' && A.group4('111110100') === '1 1111 0100', 
 ok(A.hex4(0x3000) === '0x3000' && A.hex4(0xF) === '0x000F', 'hex4 pads to four digits');
 
 /* ---------- 5. the four practice questions against the printed key ---------- */
-const expected = { q1: 0, q2: 0, q3: 2, q4: 5 };   // issues in the printed key (see below)
+const expected = { q1: 0, q2: 0, q3: 2, q4: 5, q5: 2, q6: 0, q7: 0 };   // issues in the printed key (see below)
 Q.QUESTIONS.forEach(q => {
   const r = A.assemble(q.source, q.start);
   ok(r.errors.length === 0, `${q.title}: the program assembles with no errors`);
   const c = Q.compareKey(r, q);
   // every hexadecimal value in the printed key is right, in all four questions
-  ok(c.issues.filter(i => i.what === 'hex' || i.what === 'address' || i.what === 'missing').length === 0,
+  if (q.id !== 'q5') ok(c.issues.filter(i => i.what === 'hex' || i.what === 'address' || i.what === 'missing').length === 0,
      `${q.title}: every hex value and address matches the key`);
   ok(c.issues.length === expected[q.id], `${q.title}: ${expected[q.id]} difference(s) from the key (got ${c.issues.length})`);
   ok(q.key.length <= r.words.length, `${q.title}: key rows are covered by the program`);
@@ -143,3 +143,8 @@ Q.QUESTIONS.forEach(q => {
 
 /* ---------- 6. the practice-question sources use only supported syntax ---------- */
 Q.QUESTIONS.forEach(q => ok(q.key.every(k => k.length === 4), `${q.title}: key rows have four columns`));
+
+{ // Homework 1 key: ADD R3, R3, #12 is printed as 0x16CC (SR1 = R2); it is 0x16EC
+  const q5 = Q.QUESTIONS.find(q => q.id === 'q5'), c5 = Q.compareKey(A.assemble(q5.source, q5.start), q5);
+  ok(c5.issues.length === 2 && c5.issues.every(i => i.row === 1) && c5.issues.some(i => i.what === 'hex' && i.mine === '0x16EC'), 'Homework 1 key: row 2 should be 0x16EC');
+}

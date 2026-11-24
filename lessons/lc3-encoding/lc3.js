@@ -135,6 +135,7 @@
 
   function splitOperands(rest) {
     rest = rest.replace(/#\s+/g, '#').trim();          // "# -1" -> "#-1"
+    rest = rest.replace(/([A-Za-z_]\w*)\s*([+-])\s*(\d+)\b/g, '$1$2$3');   // "Lab1 + 1" -> "Lab1+1"
     return rest ? rest.split(/\s*,\s*|\s+/) : [];
   }
 
@@ -268,11 +269,13 @@
     }
     function opcodeNote(id) { notes.opcode = mn + ' always starts with ' + FMT[id].fields[0][0]; }
     function pcOffset(tok, field) {
-      var w = SIGNED[field], r = fieldRange(field), off, key = tok.toUpperCase();
+      var w = SIGNED[field], r = fieldRange(field), off, key = tok.toUpperCase(), plus = 0;
+      var lm = /^([A-Za-z_]\w*)([+-]\d+)$/.exec(tok);
+      if (lm && labelTable[lm[1].toUpperCase()] !== undefined) { key = lm[1].toUpperCase(); plus = parseInt(lm[2], 10); }
       if (labelTable[key] !== undefined) {
-        var target = labelTable[key];
+        var target = labelTable[key] + plus;
         off = target - (a + 1);
-        notes[field] = tok + ' is at ' + hex4(target) + '. The PC is already ' + hex4(a + 1) + ' (this address + 1). Offset = ' +
+        notes[field] = tok + (plus ? ' (' + lm[1] + ' at ' + hex4(labelTable[key]) + (plus > 0 ? ' + ' : ' \u2212 ') + Math.abs(plus) + ')' : '') + ' is at ' + hex4(target) + '. The PC is already ' + hex4(a + 1) + ' (this address + 1). Offset = ' +
           hex4(target) + ' \u2212 ' + hex4(a + 1) + ' = ' + off + ' \u2192 ' + group4(toBits(off, w)) + ' (' + w + '-bit two\u2019s complement)';
       } else {
         var n = parseNum(tok);

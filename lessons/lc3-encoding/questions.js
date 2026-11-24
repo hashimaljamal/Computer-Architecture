@@ -174,6 +174,103 @@
         ['Brnzp Start',     '0x400E', '1010 0010 0000 0101', '0x0FF1']
       ]
     }
+,
+    {
+      id: 'q5',
+      tab: 'Q5',
+      title: 'Question 5',
+      start: 0x3000,
+      prompt: 'Homework 1, Q3 (also Practice problem 1, Q11). The program below implements for (int k = 12; k != 0; k--) C[k] = A[k] + B[k]; with A pointed to by R0, B by R1, C by R2 and k in R3. Its first instruction is stored at 0x3000. Draw the memory map of the code memory by turning every instruction into hexadecimal.',
+      source:
+        'Start: AND R3, R3, #0   % R3 = k = 0\n' +
+        '       ADD R3, R3, #12  % R3 = k = 12\n' +
+        'Loop:  BRz Exit         % exit when k == 0\n' +
+        '       LDR R4, R0, #12  % R4 = A[k]\n' +
+        '       LDR R5, R1, #12  % R5 = B[k]\n' +
+        '       ADD R6, R4, R5   % R6 = A[k] + B[k]\n' +
+        '       STR R6, R2, #12  % C[k] = A[k] + B[k]\n' +
+        '       ADD R0, R0, #-1  % move the A pointer\n' +
+        '       ADD R1, R1, #-1  % move the B pointer\n' +
+        '       ADD R2, R2, #-1  % move the C pointer\n' +
+        '       ADD R3, R3, #-1  % k--\n' +
+        '       BRnzp Loop\n' +
+        'Exit:  TRAP 0x25\n',
+      key: [
+        ['AND R3, R3, #0',  '0x3000', '0101 0110 1110 0000', '0x56E0'],
+        ['ADD R3, R3, #12', '0x3001', '0001 0110 1100 1100', '0x16CC'],
+        ['BRz Exit',        '0x3002', '0000 0100 0000 1001', '0x0409'],
+        ['LDR R4, R0, #12', '0x3003', '0110 1000 0000 1100', '0x680C'],
+        ['LDR R5, R1, #12', '0x3004', '0110 1010 0100 1100', '0x6A4C'],
+        ['ADD R6, R4, R5',  '0x3005', '0001 1101 0000 0101', '0x1D05'],
+        ['STR R6, R2, #12', '0x3006', '0111 1100 1000 1100', '0x7C8C'],
+        ['ADD R0, R0, #-1', '0x3007', '0001 0000 0011 1111', '0x103F'],
+        ['ADD R1, R1, #-1', '0x3008', '0001 0010 0111 1111', '0x127F'],
+        ['ADD R2, R2, #-1', '0x3009', '0001 0100 1011 1111', '0x14BF'],
+        ['ADD R3, R3, #-1', '0x300A', '0001 0110 1111 1111', '0x16FF'],
+        ['BRnzp Loop',      '0x300B', '0000 1111 1111 0110', '0x0FF6'],
+        ['TRAP 0x25',       '0x300C', '1111 0000 0010 0101', '0xF025']
+      ]
+    },
+    {
+      id: 'q6',
+      tab: 'Q6',
+      title: 'Question 6',
+      start: 0x3000,
+      prompt: 'Practice problem 2, Q2 (Lecture 6). The program adds the 12 integers of array a (int sum = 0; for (int k = 12; k != 0; k--) sum = sum + a[12-k];) with k in R2, sum in R3 and the address of a in R1. Its first instruction is stored at 0x3000. Draw the memory map of the code memory in hexadecimal.',
+      source:
+        'Start: LEA R1, 0xFF     % R1 = 0x3100, the address of a[0]\n' +
+        '       AND R3, R3, #0   % sum = 0\n' +
+        '       AND R2, R2, #0   % k = 0\n' +
+        '       ADD R2, R2, #12  % k = 12\n' +
+        'Loop:  BRz Exit         % done when k == 0\n' +
+        '       LDR R4, R1, #0   % load the element\n' +
+        '       ADD R3, R3, R4   % sum = sum + element\n' +
+        '       ADD R1, R1, #1   % point to the next element\n' +
+        '       ADD R2, R2, #-1  % k--\n' +
+        '       BRnzp Loop\n' +
+        'Exit:  TRAP x25\n',
+      key: [
+        ['LEA R1, 0xFF',    '0x3000', '1110 0010 1111 1111', '0xE2FF'],
+        ['AND R3, R3, #0',  '0x3001', '0101 0110 1110 0000', '0x56E0'],
+        ['AND R2, R2, #0',  '0x3002', '0101 0100 1010 0000', '0x54A0'],
+        ['ADD R2, R2, #12', '0x3003', '0001 0100 1010 1100', '0x14AC'],
+        ['BRz Exit',        '0x3004', '0000 0100 0000 0101', '0x0405'],
+        ['LDR R4, R1, #0',  '0x3005', '0110 1000 0100 0000', '0x6840'],
+        ['ADD R3, R3, R4',  '0x3006', '0001 0110 1100 0100', '0x16C4'],
+        ['ADD R1, R1, #1',  '0x3007', '0001 0010 0110 0001', '0x1261'],
+        ['ADD R2, R2, #-1', '0x3008', '0001 0100 1011 1111', '0x14BF'],
+        ['BRnzp Loop',      '0x3009', '0000 1111 1111 1010', '0x0FFA']
+      ]
+    },
+    {
+      id: 'q7',
+      tab: 'Q7',
+      title: 'Question 7',
+      start: 0x3000,
+      prompt: 'Practice problem 2, Q7 (Lecture 7). The program counts how many times the key typed (ch_key, in R0) appears in a file (ch_file in R1, counter R2) and prints the count. Its first instruction is stored at 0x3000. Draw the memory map of the code memory in hexadecimal.',
+      source:
+        '        AND R2, R2, #0   % counter = 0\n' +
+        '        LD R3, FILE      % R3 = 0x4000, start of the file\n' +
+        '        TRAP x23         % R0 = ch_key from the keyboard\n' +
+        '        LDR R1, R3, #0   % R1 = ch_file\n' +
+        'TEST:   ADD R4, R1, #-4  % end of file (EOT = 4)?\n' +
+        '        BRz DONE\n' +
+        '        NOT R1, R1\n' +
+        '        ADD R1, R1, #1   % R1 = -ch_file\n' +
+        '        ADD R1, R1, R0   % ch_key - ch_file\n' +
+        '        BRnp NEXT        % different: do not count\n' +
+        '        ADD R2, R2, #1   % same: counter++\n' +
+        'NEXT:   ADD R3, R3, #1   % next character\n' +
+        '        LDR R1, R3, #0\n' +
+        '        BRnzp TEST\n' +
+        'DONE:   LD R0, ASCII0    % R0 = 0x30, ASCII \'0\'\n' +
+        '        ADD R0, R0, R2   % the count as a digit\n' +
+        '        TRAP x21         % print it\n' +
+        '        TRAP x25\n' +
+        'FILE:   0x4000\n' +
+        'ASCII0: 0x0030\n',
+      key: []
+    }
   ];
 
   function normText(s) {

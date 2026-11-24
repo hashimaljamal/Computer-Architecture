@@ -19,14 +19,14 @@
   var QUESTIONS = [
     {
       id: 'q1', tab: 'Q1', title: 'Question 1', bits: 32, cache: { val: 16, unit: 'KB' }, line: 64,
-      prompt: 'A computer system has a 16 KB 4-way associative cache with 64 bytes in each line. The main memory address size is 32 bits. (a) Find the format of the main memory address. (b) To what set of the cache is the address 000210AF (hex) assigned? (c) To what block of main memory is the address 000210AF assigned? (d) If the addresses $000054A2 and $FFFF5XY4 are assigned to the same cache set, what values can the address digits X and Y have?',
+      prompt: 'A computer system has a 16 KB 4-way associative cache with 64 bytes in each line. The main memory address size is 32 bits. (a) Find the format of the main memory address. (b) To what set of the cache is the address 000210AF (hex) assigned? (c) To what block of main memory is the address 000210AF assigned? (d) If the addresses $000054A2 and $FFFF5XY4 are assigned to the same cache set, what values can the address digits X and Y have? (Also Practice problem 3, Q4.)',
       designs: [dsg(4, 20, 6, 6)],
       address: { hex: '000210AF', set: 2, block: 2114 },
       pair: { a: '000054A2', b: 'FFFF5XY4', X: '4', Y: '8,9,A,B' }
     },
     {
       id: 'q2', tab: 'Q2', title: 'Question 2', bits: 27, cache: { val: 2, unit: 'MB' }, line: 128,
-      prompt: 'Consider a main memory of capacity 128 MB and a cache size of 2 MB with 128 bytes/line. Find the format of the main memory address for each of the following cache alternatives: (a) direct-mapped, (b) 4-way associative, (c) 8-way associative.',
+      prompt: 'Consider a main memory of capacity 128 MB and a cache size of 2 MB with 128 bytes/line. Find the format of the main memory address for each of the following cache alternatives: (a) direct-mapped, (b) 4-way associative, (c) 8-way associative. (Also Practice problem 3, Q5.)',
       designs: [dsg(1, 6, 14, 7), dsg(4, 8, 12, 7), dsg(8, 9, 11, 7, NOTE_Q2)]
     },
     {

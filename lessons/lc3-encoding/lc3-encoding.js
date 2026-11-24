@@ -220,7 +220,9 @@
       if (S.mode !== 'solution' || !S.cmp) { box.innerHTML = ''; return; }
       var c = S.cmp, q = S.q, words = S.res.words, html = '';
       var hexBad = c.issues.filter(function (i) { return i.what === 'hex' || i.what === 'address' || i.what === 'missing'; }).length;
-      if (!c.issues.length) {
+      if (!q.key.length) {
+        html += '<p class="muted small">This question has no printed hex key; every value here comes from the assembler. The branch targets match the lecture (0x300E, 0x300B and 0x3004).</p>';
+      } else if (!c.issues.length) {
         html += '<p class="okmsg">\u2713 All ' + q.key.length + ' rows match the printed answer key.</p>';
       } else {
         html += '<p class="warnmsg">' + (hexBad ? 'Some values differ from the printed answer key.' :
@@ -239,7 +241,7 @@
         });
         html += '</ul>';
       }
-      if (words.length > q.key.length) {
+      if (q.key.length && words.length > q.key.length) {
         html += '<p class="muted small">The printed table has ' + q.key.length + ' rows, so the other ' + (words.length - q.key.length) + ' words are not in the key.</p>';
       }
       box.innerHTML = html;

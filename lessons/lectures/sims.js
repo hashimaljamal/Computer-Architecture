@@ -40,6 +40,9 @@
     var pc = m.PC, w = rd(m, pc), op = w >> 12, line = m.lines[pc], did = '';
     var DR = (w >> 9) & 7, SR1 = (w >> 6) & 7;
     m.PC = (pc + 1) & 0xFFFF; m.steps++;
+    m.acc = (m.acc || 0) + 1;                                   // the instruction fetch
+    if (op === 2 || op === 3 || op === 6 || op === 7) m.acc++;  // one data access
+    if (op === 10 || op === 11) m.acc += 2;                     // the pointer, then the data
     var inc = m.PC;
     switch (op) {
       case 1: case 5: {
@@ -66,10 +69,10 @@
         var vec = w & 255; m.R[7] = inc;
         if (vec === 0x21) { m.out += String.fromCharCode(m.R[0] & 255); did = 'print "' + String.fromCharCode(m.R[0] & 255) + '"'; }
         else if (vec === 0x23) { var ch = m.input.length ? m.input.charCodeAt(0) : 0; m.input = m.input.slice(1); m.R[0] = ch; did = 'read key "' + String.fromCharCode(ch) + '" into R0 = ' + h4(ch); }
-        else { m.halted = true; did = vec === 0x25 ? 'HALT' : 'TRAP ' + vec.toString(16) + ': stop'; }
+        else { m.halted = true; m.haltAt = pc; did = vec === 0x25 ? 'HALT' : 'TRAP ' + vec.toString(16) + ': stop'; }
         break;
       }
-      default: m.halted = true; did = 'stopped: ' + h4(w) + ' is not an instruction this simulator runs';
+      default: m.halted = true; m.haltAt = pc; did = 'stopped: ' + h4(w) + ' is not an instruction this simulator runs';
     }
     if (m.steps > 5000) { m.halted = true; did += ' (stopped after 5000 steps)'; }
     return { addr: pc, text: line ? line.text : h4(w), did: did };

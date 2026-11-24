@@ -35,3 +35,7 @@ Q.QUESTIONS.forEach(q => {
 });
 ok(Q.designSteps({ m: 18, w: 16, size: 3, unit: 'MB', bus: 32 }).length === 0, 'bad sizes give no tutorial');
 ok(Q.busSteps({ size: 1, unit: 'GB', bus: null, P: null }).length === 0, 'bus needs one of bus / P');
+// added from Practice problem 1
+ok(field(byId('ex8'), 'bus').value === 64, 'Ex8: 32 MB with 22 address lines needs a 64-bit bus');
+ok(field(byId('ex9'), 'bytes').value === 4096, 'Ex9: 12 address lines, 8-bit bus = 4 KB');
+ok(field(byId('ex10'), 'bus').value === 128, 'Ex10: 64 MB with 22 address lines needs a 128-bit bus');
