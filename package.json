@@ -1,0 +1,11 @@
+{
+  "name": "interactive-lessons",
+  "version": "1.0.0",
+  "description": "Interactive solutions for each lesson, one tab per lesson.",
+  "author": "Hashim AlJamal",
+  "scripts": {
+    "test": "node test.js",
+    "start": "npx --yes serve ."
+  },
+  "private": true
+}

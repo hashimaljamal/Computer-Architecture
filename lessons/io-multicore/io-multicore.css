@@ -1,0 +1,117 @@
+/* I/O, Multicore and ALU lesson. Everything is nested under .lesson-iomc. */
+.lesson-iomc { --left: 420px; }
+.lesson-iomc .prompt { font-size: 15px; line-height: 1.65; color: var(--tpri); margin: 0 0 14px; padding: 10px 14px; background: var(--s2); border: 1px solid var(--bd); border-left: 4px solid var(--ba); border-radius: 0 10px 10px 0; }
+.lesson-iomc [hidden] { display: none !important; }
+.lesson-iomc.m-practice [data-only="solin"], .lesson-iomc.m-practice [data-only="solres"], .lesson-iomc.t-on [data-only="solres"],
+.lesson-iomc.m-solution [data-only="pracres"], .lesson-iomc.t-on [data-only="pracres"], .lesson-iomc:not(.t-on) [data-only="tutres"] { display: none; }
+.lesson-iomc .card { background: var(--s2); border: 1px solid var(--bd); border-radius: 12px; padding: 12px 14px; margin: 0 0 12px; }
+.lesson-iomc .ct { margin: 4px 0 10px; font-size: 15px; font-weight: 600; }
+.lesson-iomc .ct ~ .ct { margin-top: 14px; }
+.lesson-iomc .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+.lesson-iomc .f { display: block; margin: 0 0 10px; }
+.lesson-iomc .fl { display: block; font-size: 13px; color: var(--tsec); margin: 0 0 4px; }
+.lesson-iomc .f input[type=number], .lesson-iomc .f input[type=text], .lesson-iomc .f select { width: 100%; }
+.lesson-iomc .f input[type=range] { width: calc(100% - 80px); vertical-align: middle; accent-color: var(--ba); }
+.lesson-iomc .rv { display: inline-block; width: 74px; text-align: right; font-weight: 600; font-size: 13px; }
+.lesson-iomc .ft { font-size: 12px; color: var(--tsec); margin: 4px 0 0; line-height: 1.5; }
+.lesson-iomc .ft:empty, .lesson-iomc .err:empty { display: none; }
+.lesson-iomc .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.lesson-iomc .tasks { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 8px; margin: 0 0 10px; }
+.lesson-iomc .tk { display: flex; align-items: center; gap: 6px; font-weight: 600; font-size: 13px; }
+.lesson-iomc .tk input { width: 100%; min-width: 0; }
+.lesson-iomc .bitrow { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 10px; }
+.lesson-iomc .bitb { min-width: 46px; padding: 3px 8px 5px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 17px; font-weight: 700; line-height: 1.15; display: inline-flex; flex-direction: column; align-items: center; }
+.lesson-iomc .bitb i { font-style: normal; font-size: 11px; font-weight: 500; color: var(--tsec); font-family: system-ui, sans-serif; }
+.lesson-iomc .bitb.one { border-color: var(--ba); background: var(--hl); color: var(--tacc); }
+.lesson-iomc .bitb.sm { min-width: 0; flex: 1 0 34px; font-size: 15px; padding: 2px 2px 4px; }
+.lesson-iomc .bitb.sm i { font-size: 10px; }
+.lesson-iomc .b16 { gap: 3px; }
+
+/* results */
+.lesson-iomc .rh { font-size: 16px; font-weight: 600; margin: 16px 0 8px; }
+.lesson-iomc [data-o="out"] > .rh:first-child, .lesson-iomc .two-col .rh { margin-top: 2px; }
+.lesson-iomc .mets { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin: 0 0 12px; }
+.lesson-iomc .mc { background: var(--s1); border: 1px solid var(--bd); border-radius: 10px; padding: 8px 12px; display: flex; flex-direction: column; min-width: 0; }
+.lesson-iomc .mc span { font-size: 12px; color: var(--tsec); }
+.lesson-iomc .mc b { font-size: 20px; font-weight: 600; overflow-wrap: anywhere; }
+.lesson-iomc .mc i { font-style: normal; font-size: 12px; color: var(--tsec); overflow-wrap: anywhere; }
+.lesson-iomc .fig { border: 1px solid var(--bd); border-radius: 10px; background: var(--s2); padding: 8px; margin: 0 0 12px; overflow-x: auto; }
+.lesson-iomc .exp { font-size: 14px; line-height: 1.65; margin: 0 0 12px; }
+.lesson-iomc .steps { font-size: 14px; line-height: 1.55; padding-left: 20px; margin: 0 0 8px; }
+.lesson-iomc .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 14px; }
+.lesson-iomc .tablewrap { overflow-x: auto; margin: 0 0 12px; }
+.lesson-iomc .bt { border-collapse: collapse; font-size: 14px; width: 100%; }
+.lesson-iomc .bt th, .lesson-iomc .bt td { text-align: left; padding: 5px 10px; border-bottom: 1px solid var(--bd); }
+.lesson-iomc .bt th { color: var(--tsec); font-weight: 500; }
+.lesson-iomc .bt tr.sel td { background: var(--hl); font-weight: 700; }
+.lesson-iomc .tt td, .lesson-iomc .tt th { text-align: center; }
+.lesson-iomc .keybox { border: 1px solid var(--bd); border-radius: 10px; padding: 10px 14px; background: var(--s2); }
+.lesson-iomc .okmsg, .lesson-iomc .okt { color: var(--tacc); fill: var(--tacc); }
+.lesson-iomc .bad, .lesson-iomc .badt { color: var(--tdan); fill: var(--tdan); }
+.lesson-iomc .warnmsg { color: var(--wm); font-size: 13px; margin: 6px 0 0; }
+.lesson-iomc .bad, .lesson-iomc .okmsg { font-size: 14px; }
+
+/* ALU select table */
+.lesson-iomc .seltab { border-collapse: collapse; width: 100%; font-size: 13px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; margin: 0 0 4px; }
+.lesson-iomc .seltab th { background: var(--hl); font-family: system-ui, sans-serif; font-weight: 600; padding: 5px 6px; }
+.lesson-iomc .seltab td { text-align: center; padding: 3px 6px; border-bottom: 1px solid var(--bd); }
+.lesson-iomc .seltab td.op { text-align: left; font-weight: 700; }
+.lesson-iomc .seltab .uar td.op { color: var(--tdan); }
+.lesson-iomc .seltab .ulg td.op { color: var(--tacc); }
+.lesson-iomc .seltab .ush td.op { color: var(--tpri); }
+.lesson-iomc.m-solution .seltab tbody tr { cursor: pointer; }
+.lesson-iomc.m-solution .seltab tbody tr:hover td { background: var(--hl); }
+.lesson-iomc .seltab tr.sel td { background: var(--hl); box-shadow: inset 0 2px 0 var(--ba), inset 0 -2px 0 var(--ba); }
+
+/* practice (same look as the other lessons) */
+.lesson-iomc .pgroup { border: 1px solid var(--bd); border-radius: 8px; margin: 0 0 12px; padding: 6px 12px 10px; }
+.lesson-iomc .pgroup legend { font-size: 13px; color: var(--tsec); padding: 0 6px; font-weight: 600; }
+.lesson-iomc .prow { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px 14px; }
+.lesson-iomc .pf input { width: 100%; }
+.lesson-iomc .pm { display: block; font-size: 12px; line-height: 1.4; margin-top: 3px; }
+.lesson-iomc .pm:empty { display: none; }
+.lesson-iomc .pactions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 12px; }
+
+/* pictures */
+.lesson-iomc svg.iod { display: block; margin: 0 auto; height: auto; }
+.lesson-iomc .iod text { fill: var(--tpri); font-family: system-ui, sans-serif; }
+.lesson-iomc .iod .tl { font-size: 13px; }
+.lesson-iomc .iod .tg { font-size: 15px; }
+.lesson-iomc .iod .tm { font-size: 12.5px; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.lesson-iomc .iod .ts { font-size: 11.5px; fill: var(--tsec); }
+.lesson-iomc .iod .tx { font-size: 11px; fill: var(--tsec); font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.lesson-iomc .iod .b { font-weight: 700; fill: var(--tpri); }
+.lesson-iomc .iod .big { font-size: 30px; font-weight: 300; }
+.lesson-iomc .iod .okt { fill: var(--tacc); }
+.lesson-iomc .iod .badt { fill: var(--tdan); }
+.lesson-iomc .iod .bx { fill: var(--boxf); stroke: var(--boxs); stroke-width: 1.4; }
+.lesson-iomc .iod .reg { fill: var(--s1); stroke: var(--boxs); stroke-width: 1.2; }
+.lesson-iomc .iod .reg.act { stroke: var(--ba); stroke-width: 2; }
+.lesson-iomc .iod .mx, .lesson-iomc .iod .unit { fill: var(--boxf); stroke: var(--bs); stroke-width: 1.4; }
+.lesson-iomc .iod .mx.act, .lesson-iomc .iod .unit.act { stroke: var(--ba); stroke-width: 2; fill: var(--decf); }
+.lesson-iomc .iod .w { stroke: var(--bs); stroke-width: 1.6; fill: none; }
+.lesson-iomc .iod .w.on { stroke: var(--wa); stroke-width: 2.6; }
+.lesson-iomc .iod .w.ctl { stroke: var(--wm); }
+.lesson-iomc .iod .w.bus { stroke-width: 5; }
+.lesson-iomc .iod .w.one { stroke: var(--wa); stroke-width: 2.6; }
+.lesson-iomc .iod .w.zero { stroke: var(--bs); stroke-width: 1.6; }
+.lesson-iomc .iod .ah { fill: var(--bs); }
+.lesson-iomc .iod .ah.on { fill: var(--wa); }
+.lesson-iomc .iod .node { fill: var(--boxf); stroke: var(--boxs); stroke-width: 1.5; }
+.lesson-iomc .iod .node.on { stroke: var(--wa); stroke-width: 2.6; fill: var(--decf); }
+.lesson-iomc .iod .lane { fill: none; stroke: var(--bd); }
+.lesson-iomc .iod .task { fill: var(--hl); stroke: var(--boxs); stroke-width: 1.2; }
+.lesson-iomc .iod .task.on { fill: var(--decf); stroke: var(--wa); stroke-width: 2; }
+.lesson-iomc .iod .tick { stroke: var(--tsec); stroke-width: 1; }
+.lesson-iomc .iod .sig { stroke: var(--tpri); stroke-width: 2; fill: none; }
+.lesson-iomc .iod .sig.dim { stroke: var(--bs); }
+.lesson-iomc .iod .dv { fill: var(--decf); stroke: var(--wa); stroke-width: 1.6; }
+.lesson-iomc .iod .rd { stroke: var(--wa); stroke-width: 2; stroke-dasharray: 5 4; }
+.lesson-iomc .iod .rd.bad { stroke: var(--tdan); }
+.lesson-iomc .iod .g { fill: var(--boxf); stroke: var(--boxs); stroke-width: 1.8; }
+.lesson-iomc .iod .cell { fill: var(--s1); stroke: var(--bs); }
+.lesson-iomc .iod .cell.one { fill: var(--decf); stroke: var(--wa); }
+@media (max-width: 600px) {
+  .lesson-iomc .grid2 { grid-template-columns: 1fr; }
+  .lesson-iomc .mc b { font-size: 17px; }
+}

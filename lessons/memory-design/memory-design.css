@@ -1,0 +1,89 @@
+/* Styles for the Memory design lesson. Everything is scoped under .lesson-memory. */
+
+.lesson-memory .lesson-title { font-size: 20px; font-weight: 500; text-align: center; margin: 0 0 14px; line-height: 1.3; }
+.lesson-memory .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+
+/* the two input boxes */
+.lesson-memory .two { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 0 0 12px; }
+.lesson-memory .card { background: var(--s2); border: 1px solid var(--bd); border-radius: 12px; padding: 1rem 1.25rem; }
+.lesson-memory .ct { font-size: 15px; font-weight: 500; text-align: center; margin: 0 0 12px; }
+.lesson-memory .f { display: block; margin: 0 0 10px; }
+.lesson-memory .fl { display: block; font-size: 13px; color: var(--tsec); margin: 0 0 4px; }
+.lesson-memory .ctl { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
+.lesson-memory .ctl input { width: 110px; }
+.lesson-memory .ctl select { width: 70px; }
+.lesson-memory .ft { font-size: 12px; color: var(--tsec); text-align: center; margin-top: 4px; min-height: 16px; }
+.lesson-memory .msg { font-size: 12px; color: var(--tsec); text-align: center; margin-top: 6px; min-height: 32px; line-height: 1.4; }
+.lesson-memory .msg.err { color: var(--tdan); }
+.lesson-memory .hint { font-size: 12px; color: var(--tsec); text-align: center; margin: 0 0 8px; }
+.lesson-memory [data-o="err"] { min-height: 18px; margin: 0 0 8px; }
+
+/* results */
+.lesson-memory .out { transition: opacity .15s; }
+.lesson-memory .out.dim { opacity: .35; }
+.lesson-memory .mets { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 0 0 4px; }
+.lesson-memory .mc { background: var(--s1); border: 1px solid var(--bd); border-radius: 8px; padding: 10px 12px; }
+.lesson-memory .mc p { word-break: break-word; }
+.lesson-memory .mv { font-size: 16px; font-weight: 500; }
+.lesson-memory .lg { display: inline-block; width: 18px; height: 0; border-top: 2.5px solid; vertical-align: middle; margin: 0 4px 0 10px; }
+.lesson-memory .legend .lg:first-child { margin-left: 0; }
+.lesson-memory .zbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 6px; }
+.lesson-memory .zbar .muted { font-size: 12px; }
+.lesson-memory .scroll { max-height: 640px; overflow: auto; border: 1px solid var(--bd); border-radius: 8px; }
+.lesson-memory .map { max-height: 260px; overflow-y: auto; }
+.lesson-memory .maprow { display: flex; gap: 12px; font-size: 13px; margin: 0 0 4px; }
+.lesson-memory .cs { width: 44px; font-weight: 500; color: var(--tacc); }
+
+/* view switch, block map, working */
+.lesson-memory .seg { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 12px; }
+.lesson-memory .split[hidden] { display: none; }
+.lesson-memory .wk { margin: 0; padding-left: 20px; line-height: 1.8; font-size: 14px; }
+.lesson-memory .bt { border-collapse: collapse; font-size: 13px; width: 100%; }
+.lesson-memory .bt th, .lesson-memory .bt td { text-align: left; padding: 5px 10px; border-bottom: 1px solid var(--bd); font-family: ui-monospace, Menlo, Consolas, monospace; }
+.lesson-memory .bt th { font-family: inherit; color: var(--tsec); font-weight: 500; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lesson-memory .out { transition: none; }
+}
+
+/* width of the left column on big screens (see style.css) */
+.lesson-memory { --left: 420px; }
+
+/* modes: what shows in Solution, Practice and Tutorial */
+.lesson-memory .mbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px 16px; margin: 0 0 12px; }
+.lesson-memory .modes, .lesson-memory .seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.lesson-memory .m-practice [data-only="solin"], .lesson-memory.m-practice [data-only="solin"],
+.lesson-memory.m-practice [data-only="solres"], .lesson-memory.t-on [data-only="solres"],
+.lesson-memory.m-solution [data-only="pracres"], .lesson-memory.t-on [data-only="pracres"],
+.lesson-memory:not(.t-on) [data-only="tutres"],
+.lesson-memory.m-solution:not(.t-on) [data-only="prompt"] { display: none; }
+.lesson-memory .prompt { font-size: 15px; line-height: 1.65; color: var(--tpri); margin: 0 0 14px; padding: 10px 14px; background: var(--s2); border: 1px solid var(--bd); border-left: 4px solid var(--ba); border-radius: 0 10px 10px 0; }
+.lesson-memory .pgroup { border: 1px solid var(--bd); border-radius: 8px; margin: 0 0 12px; padding: 6px 12px 10px; }
+.lesson-memory .pgroup legend { font-size: 13px; color: var(--tsec); padding: 0 6px; }
+.lesson-memory .prow { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 8px 14px; }
+.lesson-memory .pf input { width: 100%; }
+.lesson-memory .pm { display: block; font-size: 12px; line-height: 1.4; margin-top: 3px; }
+.lesson-memory .pm:empty { display: none; }
+.lesson-memory .pactions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 4px 0 12px; }
+.lesson-memory .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.lesson-memory .okmsg { color: var(--tacc); }
+.lesson-memory .bad { color: var(--tdan); }
+
+/* compact input cards */
+.lesson-memory .card { padding: 12px 14px; }
+.lesson-memory .ct { margin: 0 0 10px; }
+.lesson-memory .card .f { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 4px 10px; margin: 0 0 8px; }
+.lesson-memory .card .fl { margin: 0; }
+.lesson-memory .ft { min-height: 0; }
+.lesson-memory .msg { min-height: 0; margin-top: 4px; }
+.lesson-memory .ft:empty, .lesson-memory .msg:empty, .lesson-memory [data-o="err"]:empty { display: none; }
+.lesson-memory .two { gap: 10px; }
+.lesson-memory .ctl input { width: 96px; }
+@media (max-width: 380px) { .lesson-memory .card .f { grid-template-columns: 1fr; } }
+
+/* chip grid picture in the Lesson pop-up */
+.lesson-memory .gchips { display: grid; gap: 6px; align-items: center; justify-content: start; font-size: 12px; }
+.lesson-memory .gchip { border: 1.5px solid var(--boxs); background: var(--boxf); border-radius: 6px; text-align: center; padding: 6px 4px; font-weight: 600; line-height: 1.25; }
+.lesson-memory .gchip small { font-weight: 400; color: var(--tsec); }
+.lesson-memory .gcol { text-align: center; color: var(--wg); font-family: ui-monospace, Menlo, Consolas, monospace; }
+.lesson-memory .grow { color: var(--wm); font-weight: 600; padding-right: 4px; }

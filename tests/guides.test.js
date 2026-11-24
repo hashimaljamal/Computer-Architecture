@@ -1,0 +1,31 @@
+'use strict';
+// Every "Lesson" pop-up builds, and contains no NaN / undefined.
+const { ok } = require('./harness.js');
+global.window = global;
+global.LC3 = require('../lessons/lc3-encoding/lc3.js');
+global.Deps = require('../lessons/pipelining/deps.js');
+global.DepDiagram = require('../lessons/pipelining/diagram.js');
+global.PipelineQuestions = require('../lessons/pipelining/questions.js');
+global.MemLogic = require('../lessons/memory-design/logic.js');
+global.MemBlocks = require('../lessons/memory-design/blocks.js');
+global.Schematic = require('../lessons/memory-design/schematic.js');
+global.CacheLogic = require('../lessons/cache/logic.js');
+global.IOLogic = require('../lessons/io-multicore/logic.js');
+global.IODraw = require('../lessons/io-multicore/draw.js');
+global.IOQuestions = require('../lessons/io-multicore/questions.js');
+const built = {};
+global.Guide = { register: (id, fn) => { built[id] = fn(); } };
+require('../lessons/io-multicore/guide.js');
+['lc3-encoding', 'pipelining', 'memory-design', 'cache', 'io-systems', 'multicore', 'alu'].forEach(id => {
+  if (!/io-systems|multicore|alu/.test(id)) require('../lessons/' + id + '/guide.js');
+  const h = built[id] || '';
+  ok(h.length > 4000, id + ' guide has content');
+  ok(!/NaN|undefined|\[object/.test(h), id + ' guide has no NaN or undefined');
+  ok((h.match(/<h3>/g) || []).length >= (/io-systems|multicore|alu/.test(id) ? 3 : 7), id + ' guide has sections');
+});
+ok(/0x03FD/.test(built['lc3-encoding']), 'LC-3 guide: BRp LOOP = 0x03FD');
+ok(/Instruction-1 depends on Instruction-4 for R2/.test(built.pipelining), 'pipelining guide: loop-carried R2');
+ok(/block 2114/.test(built.cache) && /X = 4\b/.test(built.cache.replace(/<[^>]+>/g, '')), 'cache guide: block 2114, X = 4');
+ok(/0xC00000/.test(built['memory-design']) && /M = 19/.test(built['memory-design']), 'memory guide: block map and M');
+ok(/16 GB/.test(built['io-systems']) && /18 \u00f7 10 = 1.8/.test(built.multicore) && /A \u2212 B/.test(built.alu), 'I/O, multicore and ALU guides: 16 GB, speedup 1.8, subtraction');
+delete global.window; delete global.Guide;

@@ -1,0 +1,403 @@
+/* Shared styles: theme colours, page, tabs, and the pieces every lesson can reuse. */
+
+/* ---------- theme colours ---------- */
+:root {
+  --bg: #ffffff;
+  --s1: #ffffff;      /* result blocks: white, separated by a border */
+  --s2: #ffffff;      /* input blocks */
+  --hl: #eef1f4;      /* selected row, hover, highlighted answer */
+  --tpri: #15140f;    /* main text */
+  --tsec: #55534d;    /* secondary text */
+  --tacc: #0b6350;    /* accent text */
+  --tdan: #b02020;    /* errors */
+  --bd: rgba(0, 0, 0, .18);
+  --bs: rgba(0, 0, 0, .42);
+  --inbg: #ffffff;
+  --btn: #ffffff;
+  --btnh: #eef1f4;
+  --ring: rgba(29, 158, 117, .30);
+  --ba: #138a65;      /* focus / active */
+  /* schematic */
+  --boxf: #ffffff;    /* chip and processor fill */
+  --boxs: #5f5d58;    /* chip and processor outline */
+  --decf: #e1f5ee;    /* decoder fill */
+  --decs: #0b6350;    /* decoder outline */
+  --wa: #138a65;      /* address wires */
+  --wm: #9a5c0a;      /* control wires */
+  --wg: #5f5d58;      /* data wires */
+  color-scheme: light;
+}
+:root[data-theme="dark"] {
+  --bg: #000000;      /* deep black */
+  --s1: #1c1c1c;      /* dark gray blocks */
+  --s2: #161616;
+  --hl: #2a2a2a;
+  --tpri: #f4f4f4;
+  --tsec: #b3b3b3;
+  --tacc: #5fdcae;
+  --tdan: #ff8a8a;
+  --bd: rgba(255, 255, 255, .17);
+  --bs: rgba(255, 255, 255, .36);
+  --inbg: #222222;
+  --btn: #222222;
+  --btnh: #313131;
+  --ring: rgba(95, 220, 174, .40);
+  --ba: #5fdcae;
+  --boxf: #1c1c1c;
+  --boxs: #b3b3b3;
+  --decf: #06382e;
+  --decs: #5fdcae;
+  --wa: #5fdcae;
+  --wm: #f2a533;
+  --wg: #cfcfcf;
+  color-scheme: dark;
+}
+
+/* ---------- page ---------- */
+* { box-sizing: border-box; }
+html { background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--tpri);
+  font: 14px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  transition: background .2s, color .2s;
+}
+.app { max-width: 900px; margin: 0 auto; padding: 12px clamp(12px, 4vw, 24px) 48px; }
+p { margin: 0; }
+
+.topbar { display: flex; justify-content: flex-end; margin: 0 0 4px; }
+.title { text-align: center; margin: 0 0 14px; }
+.title h1 { margin: 0; font-size: 22px; font-weight: 500; line-height: 1.3; }
+.by { font-size: 13px; color: var(--tsec); margin-top: 2px; }
+
+/* ---------- tabs ---------- */
+.tabs {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border-bottom: 1px solid var(--bd);
+  margin: 0 0 18px;
+  scrollbar-width: thin;
+}
+button.tab {
+  flex: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  padding: 9px 14px;
+  margin-bottom: -1px;
+  color: var(--tsec);
+  white-space: nowrap;
+}
+button.tab:hover { background: var(--hl); color: var(--tpri); }
+button.tab[aria-selected="true"] { color: var(--tpri); font-weight: 500; border-bottom-color: var(--ba); }
+button.tab:focus { outline: none; }
+button.tab:focus-visible { outline: 2px solid var(--ba); outline-offset: -4px; border-radius: 6px; }
+.panel[hidden] { display: none; }
+
+/* ---------- controls (shared by every lesson) ---------- */
+input, select, textarea {
+  background: var(--inbg);
+  color: var(--tpri);
+  border: 1px solid var(--bs);
+  border-radius: 8px;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 14px;
+}
+input, select { height: 34px; }
+input:focus, select:focus, textarea:focus { outline: none; border-color: var(--ba); box-shadow: 0 0 0 2px var(--ring); }
+button {
+  background: var(--btn);
+  color: var(--tpri);
+  border: 1px solid var(--bs);
+  border-radius: 8px;
+  font: inherit;
+  cursor: pointer;
+}
+button:hover { background: var(--btnh); }
+button:focus-visible { outline: 2px solid var(--ba); outline-offset: 2px; }
+.pb { font-size: 13px; padding: 4px 10px; }
+.pb.on { border-color: var(--ba); font-weight: 500; }
+
+/* ---------- small helpers ---------- */
+.muted { color: var(--tsec); }
+.small { font-size: 12px; }
+.center { text-align: center; }
+.err { font-size: 13px; color: var(--tdan); }
+.cap { font-size: 13px; color: var(--tsec); margin: 14px 0 6px; line-height: 1.6; }
+
+/* ---------- lesson layout ----------
+ * Every lesson puts its inputs in .col-a and its results in .col-b, inside .split.
+ * Small screens: one column that scrolls like a normal page.
+ * Big screens (wide and tall enough): the page fits the window, the two columns
+ * sit side by side, and each column scrolls on its own if it needs to.
+ * A lesson can set --left (width of the left column) on its panel class. */
+.split { display: block; }
+.col-a, .col-b { min-width: 0; }
+
+@media (min-width: 900px) and (min-height: 560px) {
+  html, body { height: 100%; overflow: hidden; }
+  .app {
+    max-width: 1920px;
+    height: 100vh;
+    height: 100dvh;
+    padding: 10px 24px 14px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    column-gap: 24px;
+    grid-template-areas: "title sect top" "tabrow tabrow tabrow" "panels panels panels";
+  }
+  .topbar { grid-area: top; margin: 0; align-items: center; }
+  .title { grid-area: title; margin: 0; text-align: left; display: flex; align-items: baseline; gap: 12px; }
+  .title h1 { font-size: 18px; }
+  .by { margin: 0; }
+  .tabrow { grid-area: tabrow; margin: 6px 0 14px; }
+  .sections { grid-area: sect; }
+  #panels { grid-area: panels; min-height: 0; }
+  .panel:not([hidden]) { height: 100%; display: flex; flex-direction: column; min-height: 0; }
+  .panel > .lesson-title { display: none; }      /* the selected tab already names the lesson */
+  .split {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: var(--left, 420px) minmax(0, 1fr);
+    gap: 28px;
+  }
+  .col-a, .col-b { min-height: 0; overflow-y: auto; scrollbar-gutter: stable; padding: 0 4px 16px 0; }
+  .col-a { border-right: 1px solid var(--bd); padding-right: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body { transition: none; }
+}
+
+
+/* ---------- tutorial (shared by every lesson) ---------- */
+.tut .thead { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; margin: 0 0 6px; }
+.tut .tbar { height: 4px; border-radius: 2px; background: var(--bd); margin: 0 0 12px; overflow: hidden; }
+.tut .tbar i { display: block; height: 100%; background: var(--ba); transition: width .2s; }
+.tut .tdone { display: flex; justify-content: space-between; gap: 12px; width: 100%; text-align: left; padding: 7px 12px; margin: 0 0 6px; font-size: 13px; }
+.tut .tdone b { font-weight: 500; }
+.tut .tdone span { color: var(--tacc); overflow-wrap: anywhere; text-align: right; }
+.tut .tstep { background: var(--s2); border: 1px solid var(--bd); border-radius: 12px; padding: 14px 16px; margin: 8px 0; }
+.tut .tstep h4 { margin: 0 0 8px; font-size: 16px; font-weight: 500; }
+.tut .tbody { font-size: 14px; line-height: 1.65; }
+.tut .tbody p { margin: 0 0 8px; }
+.tut .tbody ul { margin: 0 0 8px; padding-left: 20px; }
+.tut .task { margin: 10px 0 8px; font-size: 14px; }
+.tut .tans { margin: 4px 0 8px; padding: 8px 12px; border-left: 3px solid var(--ba); background: var(--hl); border-radius: 0 8px 8px 0; font-size: 15px; }
+.tut .trow { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.tut .trow input { flex: 1 1 160px; min-width: 0; }
+.tut .tmsg { min-height: 22px; margin: 6px 0 0; font-size: 13px; }
+.tut .tnav { display: flex; justify-content: space-between; gap: 8px; margin: 10px 0 0; }
+.tut .tnav button:disabled { opacity: .4; cursor: default; }
+.tut .tfin { margin: 10px 0 0; font-size: 13px; }
+.tut .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.tut .okmsg { color: var(--tacc); }
+.tut .bad { color: var(--tdan); }
+.tut .bt { border-collapse: collapse; font-size: 13px; width: 100%; }
+.tut .bt th, .tut .bt td { text-align: left; padding: 4px 10px; border-bottom: 1px solid var(--bd); }
+button.tutbtn.on, .pb.tutbtn.on { border-color: var(--ba); font-weight: 500; }
+
+
+/* ---------- any screen size ---------- */
+html { -webkit-text-size-adjust: 100%; }
+img, svg, video { max-width: 100%; }
+h1, h2, h3, h4, p, li { overflow-wrap: anywhere; }
+td, th { overflow-wrap: break-word; }
+pre, .mono { overflow-wrap: normal; }
+.tabs { scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+button.tab { scroll-snap-align: start; }
+
+/* tablets and small laptops: the two columns still fit side by side */
+@media (min-width: 900px) and (max-width: 1100px) and (min-height: 560px) {
+  .split { gap: 18px; }
+  .app { padding-left: 14px; padding-right: 14px; }
+}
+
+/* phones */
+@media (max-width: 600px) {
+  body { font-size: 15px; }
+  .title h1 { font-size: 19px; }
+  .topbar { margin-bottom: 2px; }
+  button.tab { padding: 10px 12px; font-size: 14px; }
+  input, select, textarea { font-size: 16px; }          /* stops iOS zooming in on focus */
+  .tut .tstep { padding: 12px; }
+  .tut .tdone { flex-direction: column; gap: 2px; }
+  .tut .tdone span { text-align: left; }
+}
+
+/* touch screens: bigger targets */
+@media (pointer: coarse) {
+  button, .pb { min-height: 40px; }
+  button.tab { min-height: 44px; }
+  input, select { height: 40px; }
+  .pb { padding: 6px 12px; }
+}
+
+/* very short windows (phones on their side): stack, do not trap the page in a fixed height */
+@media (max-height: 559px) {
+  html, body { height: auto; overflow: auto; }
+}
+
+@media print {
+  .topbar, .tabs, button { display: none !important; }
+  html, body { height: auto; overflow: visible; }
+}
+
+
+/* ---------- the bar at the top of every lesson ----------
+ * [categories] | [questions]  ............  [Solution] [Practice] [Tutorial] */
+.panel .lbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin: 0 0 12px; }
+.panel .lbar .presets, .panel .lbar .seg { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; }
+.panel .lbar .presets[hidden] { display: none; }
+.panel .lbar .modes { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.panel .lbar .sep { width: 1px; align-self: stretch; min-height: 28px; background: var(--bs); margin: 0 4px; }
+.panel .lbar .pb { font-size: 14px; padding: 6px 14px; }
+
+/* questions and categories: bold, and the chosen one is filled */
+.pb.qbtn { font-weight: 600; letter-spacing: .01em; }
+.panel .lbar .pb.qbtn { font-size: 15px; }
+@media (min-width: 900px) and (max-width: 1500px) { .panel .lbar .pb.qbtn { font-size: 13.5px; padding: 5px 9px; } }
+@media (max-width: 600px) { .panel .lbar .pb.qbtn { font-size: 14px; } .panel .prompt { font-size: 14.5px !important; } }
+.pb.qbtn.on, .pb.qbtn.on:hover { background: var(--tacc); color: var(--bg); border-color: var(--tacc); }
+.panel .lbar .modes .pb.on { background: var(--hl); border-color: var(--ba); font-weight: 600; }
+
+@media (max-width: 600px) {
+  .panel .lbar { gap: 6px; }
+  .panel .lbar .sep { display: none; }
+  .panel .lbar .modes { margin-left: 0; width: 100%; }
+  .panel .lbar .modes .pb { flex: 1; }
+  .panel .lbar .pb { padding: 6px 11px; }
+}
+
+
+/* mid-size screens: keep the lesson bar on one line */
+@media (min-width: 900px) and (max-width: 1500px) {
+  .panel .lbar { gap: 6px 8px; }
+  .panel .lbar .pb { font-size: 13px; padding: 5px 10px; }
+  .panel .lbar .sep { margin: 0 2px; }
+}
+
+/* the selected tab already names the lesson, so the in-panel heading is not needed */
+.panel > .lesson-title { display: none; }
+
+/* phones: one compact header row, tabs wrap instead of hiding off-screen */
+@media (max-width: 600px) {
+  .app { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "title top" "sect sect" "tabrow tabrow" "panels panels"; align-items: center; padding-top: 10px; }
+  .sections { grid-area: sect; margin: 10px 0 0; }
+  .tabrow { grid-area: tabrow; }
+  .topbar { grid-area: top; margin: 0; }
+  .topbar .pb { font-size: 12px; padding: 4px 9px; }
+  .title { grid-area: title; text-align: left; margin: 0; }
+  .title h1 { font-size: 16px; line-height: 1.25; }
+  .by { font-size: 12px; margin: 0; }
+  .tabs { flex-wrap: wrap; overflow: visible; margin: 8px 0 0; gap: 0; }
+  button.tab { flex: 1 1 45%; text-align: center; padding: 8px 6px; }
+  #panels { grid-area: panels; min-width: 0; }
+}
+
+@media (max-width: 600px) {
+  .panel .enc { font-size: 12px; }
+  .panel .enc th, .panel .enc td { padding-left: 6px !important; padding-right: 6px !important; }
+}
+
+@media (max-width: 600px) {
+  .panel .lbar .seg { width: 100%; flex-wrap: nowrap; }
+  .panel .lbar .seg .pb { flex: 1 1 auto; font-size: 12px; padding: 6px 5px; }
+}
+@media (max-width: 600px) { .panel .lbar .seg .pb.qbtn { font-size: 12px; } }
+
+/* ---------- the Lesson pop-up (guide.js) ---------- */
+html.g-open, html.g-open body { overflow: hidden; }
+.gmodal { position: fixed; inset: 0; z-index: 100; display: flex; align-items: center; justify-content: center; padding: 24px; }
+.gmodal[hidden] { display: none; }
+.gback { position: absolute; inset: 0; background: rgba(0, 0, 0, .6); }
+.gcard { position: relative; display: flex; flex-direction: column; width: min(940px, 100%); max-height: calc(100dvh - 48px);
+  background: var(--bg); color: var(--tpri); border: 1px solid var(--bs); border-radius: 14px; box-shadow: 0 20px 60px rgba(0, 0, 0, .45); }
+.ghead { flex: none; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 22px; border-bottom: 1px solid var(--bd); }
+.ghead h2 { margin: 0; font-size: 19px; font-weight: 600; }
+.gtoc { flex: none; display: flex; gap: 6px; overflow-x: auto; overflow-y: hidden; padding: 10px 22px; border-bottom: 1px solid var(--bd); scrollbar-width: thin; }
+.gtoc .pb { flex: none; font-size: 13px; line-height: 1.3; padding: 5px 12px; border-radius: 999px; white-space: nowrap; }
+.gmodal .gbody { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 6px 26px 30px; }
+.panel .gtext { font-size: 15px; line-height: 1.7; }
+.gmodal .gbody:focus { outline: none; }
+.panel .gtext h3 { font-size: 18px; font-weight: 600; margin: 26px 0 8px; padding-top: 4px; scroll-margin-top: 6px; }
+.panel .gtext h3:first-child { margin-top: 14px; }
+.panel .gtext h4 { font-size: 15px; font-weight: 600; margin: 16px 0 6px; }
+.panel .gtext p { margin: 0 0 10px; }
+.panel .gtext ul, .panel .gtext ol { margin: 0 0 12px; padding-left: 22px; }
+.panel .gtext li { margin: 0 0 4px; }
+.panel .gtext .mono, .panel .gtext code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .93em; }
+.panel .gtext code { background: var(--hl); padding: 1px 5px; border-radius: 5px; }
+.panel .gtext .gfig { border: 1px solid var(--bd); border-radius: 10px; padding: 12px 14px; margin: 8px 0 14px; background: var(--s2); overflow-x: auto; }
+.panel .gtext .gcap { font-size: 13px; color: var(--tsec); margin: 8px 0 0; line-height: 1.5; }
+.panel .gtext .gtable { border-collapse: collapse; font-size: 14px; margin: 6px 0 14px; }
+.panel .gtext .gtable th, .panel .gtext .gtable td { border: 1px solid var(--bd); padding: 4px 10px; text-align: left; vertical-align: top; }
+.panel .gtext .gtable th { background: var(--hl); font-weight: 600; }
+.panel .gtext .gtable.mono td { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+.panel .gtext .gkey { border-left: 4px solid var(--ba); background: var(--hl); padding: 10px 14px; border-radius: 0 10px 10px 0; margin: 8px 0 14px; }
+.panel .gtext .gkey.warn { border-left-color: var(--wm); }
+.panel .gtext .gkey p:last-child, .panel .gtext .gkey ul:last-child, .panel .gtext .gkey ol:last-child { margin-bottom: 0; }
+.panel .gtext .gform { display: block; text-align: center; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 15px; font-weight: 600;
+  background: var(--hl); border-radius: 8px; padding: 8px 12px; margin: 6px 0 12px; }
+.panel .gtext .gsteps > li { margin-bottom: 8px; }
+.panel .gtext .gtwo { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; }
+.panel .gtext svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
+@media (max-width: 600px) {
+  .gmodal { padding: 0; }
+  .gcard { width: 100%; height: 100dvh; max-height: 100dvh; border-radius: 0; border: none; }
+  .ghead { padding: 10px 14px; }
+  .ghead h2 { font-size: 16px; }
+  .gtoc { padding: 8px 14px; }
+  .gbody { padding: 4px 16px 24px; font-size: 14.5px; }
+}
+.pb.lessonbtn { font-weight: 600; }
+
+.gmodal .gfig.wide svg { min-width: 560px; }
+
+@media (min-width: 900px) and (max-width: 1500px) {
+  .panel .lbar .modes { gap: 4px; }
+  .panel .lbar .modes .pb { padding: 5px 9px; font-size: 13px; }
+}
+
+
+/* ---------- the two sections and the lesson filter ---------- */
+.sections { display: inline-flex; align-self: center; justify-self: start; gap: 0; border: 1px solid var(--bs); border-radius: 10px; padding: 3px; background: var(--s2); }
+.secb { border: none; background: none; border-radius: 7px; padding: 6px 16px; font-size: 14.5px; font-weight: 600; color: var(--tsec); }
+.secb:hover { background: var(--hl); color: var(--tpri); }
+.secb.on, .secb.on:hover { background: var(--tacc); color: var(--bg); }
+.tabrow { display: flex; align-items: flex-end; gap: 12px; border-bottom: 1px solid var(--bd); margin: 6px 0 14px; }
+.tabrow .tabs { flex: 1 1 auto; min-width: 0; border-bottom: none; margin: 0; }
+body[data-section="lessons"] .tabrow { display: none; }
+.filtwrap { position: relative; flex: none; padding-bottom: 5px; }
+.filtbtn { font-size: 13.5px; padding: 5px 12px; font-weight: 600; white-space: nowrap; }
+.filtpop { position: absolute; right: 0; top: calc(100% + 4px); z-index: 60; width: min(560px, 92vw); max-height: min(70vh, 560px); overflow-y: auto;
+  background: var(--bg); border: 1px solid var(--bs); border-radius: 12px; padding: 12px 14px; box-shadow: 0 12px 34px rgba(0, 0, 0, .28); }
+.fx { display: grid; grid-template-columns: 70px 1fr; gap: 8px; align-items: start; margin: 0 0 10px; }
+.fx:last-child { margin-bottom: 0; }
+.fxl { font-size: 12px; font-weight: 600; color: var(--tsec); text-transform: uppercase; letter-spacing: .04em; padding-top: 7px; }
+.fxb { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: 13px; padding: 5px 11px; border-radius: 999px; font-weight: 500; }
+.chip.on { background: var(--hl); border-color: var(--ba); color: var(--tpri); font-weight: 600; }
+.chip.none { color: var(--tsec); border-style: dashed; }
+.chip small { font-weight: 400; font-size: 11px; }
+.nopractice { text-align: center; padding: 40px 16px; }
+.nopractice p { margin: 0 0 8px; }
+@media (max-width: 600px) {
+  .sections { width: 100%; }
+  .secb { flex: 1; padding: 7px 8px; font-size: 14px; }
+  .tabrow { flex-direction: column; align-items: stretch; gap: 6px; margin: 4px 0 12px; }
+  .filtwrap { padding: 0 0 6px; }
+  .filtbtn { width: 100%; }
+  .filtpop { left: 0; right: 0; width: auto; }
+  .fx { grid-template-columns: 1fr; gap: 4px; }
+  .fxl { padding-top: 0; }
+}
+/* narrow screens: a wide table scrolls inside its own box instead of breaking words or widening the page */
+@media (max-width: 600px) { .gtext .gtable { display: block; max-width: 100%; overflow-x: auto; } }

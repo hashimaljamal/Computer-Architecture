@@ -1,0 +1,13 @@
+'use strict';
+const { ok } = require('./harness.js');
+const T = require('../tutorial.js');
+const c = T.check;
+ok(c({type:'num',value:524288}, '2^19') && c({type:'num',value:524288}, '524,288') && c({type:'num',value:19}, ' 19 '), 'num forms');
+ok(!c({type:'num',value:19}, '18') && !c({type:'num',value:19}, '') && !c({type:'num',value:19}, 'abc'), 'num rejects');
+ok(c({type:'hex',value:0x3FFFFF}, '0x3fffff') && c({type:'hex',value:0x3FFFFF}, '3FFFFF') && c({type:'hex',value:0x3FFFFF}, '0x03FFFFF'), 'hex forms');
+ok(!c({type:'hex',value:0x3FFFFF}, '0x400000') && !c({type:'hex',value:1}, 'zz'), 'hex rejects');
+ok(c({type:'bin',value:'0001001010000001'}, '0001 0010 1000 0001') && !c({type:'bin',value:'01'}, '10'), 'bin');
+ok(c({type:'set',value:['1','4']}, '4, 1') && c({type:'set',value:['1']}, 'Inst-1') && !c({type:'set',value:['1','4']}, '1'), 'set');
+ok(c({type:'txt',value:'A23-A22'}, 'a23 a22') && c({type:'txt',value:'A23-A22'}, 'A23–A22') && !c({type:'txt',value:'A23-A22'}, 'A22'), 'txt');
+ok(T.numOf('2^10') === 1024 && Number.isNaN(T.numOf('2^')), 'numOf');
+ok(c({type:'approx',value:1.8}, '1.80') && c({type:'approx',value:1.666},'1.67') && !c({type:'approx',value:1.8},'1.9'), 'approx');
