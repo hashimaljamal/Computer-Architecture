@@ -78,14 +78,15 @@
       var withPractice = {};
       Object.keys(C().PRACTICE).forEach(function (k) { if (parts[k] || lessons.some(function (l) { return l.id === k; })) topicsOf(k).forEach(function (t) { withPractice[t] = true; }); });
       var p = Filter.preset();
-      var h = '<div class="fx"><span class="fxl">Exam</span><div class="fxb">' +
+      var h = opts.lessonsOnly ? '' : '<div class="fx"><span class="fxl">Exam</span><div class="fxb">' +
         '<button type="button" class="pb qbtn' + (p === 'all' ? ' on' : '') + '" data-fexam="all">All</button>' +
         C().EXAMS.map(function (x) { return '<button type="button" class="pb qbtn' + (p === x.id ? ' on' : '') + '" data-fexam="' + x.id + '">' + x.title + '</button>'; }).join('') +
-        '</div></div>' + (opts.examsOnly ? '' : '<div class="fx"><span class="fxl">Lessons</span><div class="fxb chips">' +
+        '</div></div>';
+      h += (opts.examsOnly ? '' : '<div class="fx"><span class="fxl">Lessons</span><div class="fxb chips">' +
         C().TOPICS.map(function (t) {
           var on = !!enabled[t.id], none = opts.practice && !withPractice[t.id];
           return '<button type="button" class="chip' + (on ? ' on' : '') + (none ? ' none' : '') + '" data-ftopic="' + t.id + '" aria-pressed="' + on + '"' +
-            (none ? ' title="No practice problems for this lesson yet"' : '') + '>' + (on ? '✓ ' : '') + t.title + (none ? ' <small>(no problems yet)</small>' : '') + '</button>';
+            (none ? ' title="No problems for this lesson yet"' : '') + '>' + (on ? '✓ ' : '') + t.title + (none ? ' <small>(no problems yet)</small>' : '') + '</button>';
         }).join('') + '</div></div>');
       box.innerHTML = h;
     },
@@ -212,7 +213,7 @@
     setSection('practice');
     $('nopractice').hidden = false;
     currentId = '#none';
-    document.title = 'Practice problems - ' + SITE_NAME;
+    document.title = 'Problems - ' + SITE_NAME;
   }
 
   // Switch right away, then update the address so the page is linkable.
@@ -242,8 +243,13 @@
   // hide the tabs of lessons that are switched off
   function syncTabs() {
     lessons.forEach(function (l) { var p = parts[l.id]; if (p && p.tab) p.tab.hidden = !visible(l); });
-    $('filt').innerHTML = '<span aria-hidden="true">☰</span> ' + Filter.label();
-    Filter.render($('filtpop'), { practice: true });
+    var pre = Filter.preset(), nOn = C().TOPICS.filter(function (t) { return Filter.has(t.id); }).length;
+    $('exq').innerHTML = [{ id: 'all', title: 'All' }].concat(C().EXAMS).map(function (x) {
+      return '<button type="button" class="pb qbtn' + (pre === x.id ? ' on' : '') + '" data-fexam="' + x.id + '" aria-pressed="' + (pre === x.id) + '">' + x.title + '</button>';
+    }).join('');
+    $('filt').innerHTML = '<span aria-hidden="true">☰</span> ' + (pre ? 'Lessons' : nOn + ' lesson' + (nOn === 1 ? '' : 's'));
+    $('filt').title = 'Pick single lessons (showing: ' + Filter.label() + ')';
+    Filter.render($('filtpop'), { practice: true, lessonsOnly: true });
     if (document.body.getAttribute('data-section') === 'practice' && ready) {
       var cur = find(currentId);
       if (!cur || !visible(cur)) {
@@ -283,6 +289,7 @@
     });
     $('filt').addEventListener('click', function () { openFilter($('filtpop').hidden); });
     Filter.bind($('filtpop'));
+    Filter.bind($('exq'));
     document.addEventListener('click', function (e) {
       // ignore clicks on buttons the filter just redrew (they are no longer on the page)
       if (!$('filtpop').hidden && e.target.isConnected && !e.target.closest('.filtwrap')) openFilter(false);

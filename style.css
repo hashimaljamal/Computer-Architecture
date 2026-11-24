@@ -401,3 +401,18 @@ body[data-section="lessons"] .tabrow { display: none; }
 }
 /* narrow screens: a wide table scrolls inside its own box instead of breaking words or widening the page */
 @media (max-width: 600px) { .gtext .gtable { display: block; max-width: 100%; overflow-x: auto; } }
+/* exam buttons next to the lessons menu on the Problems tab row */
+.filtwrap { display: flex; align-items: center; gap: 6px; }
+.exq { display: flex; gap: 4px; }
+.exq .pb { font-size: 13.5px; padding: 5px 11px; font-weight: 600; }
+@media (max-width: 600px) {
+  .filtwrap { flex-wrap: wrap; }
+  .exq { flex: 1 1 100%; }
+  .exq .pb { flex: 1; }
+}
+/* when the tabs and the exam buttons do not fit on one line, the buttons move to their own line */
+@media (min-width: 601px) {
+  .tabrow { flex-wrap: wrap; row-gap: 4px; }
+  .tabrow .tabs { flex: 1 1 auto; min-width: min(100%, max-content); }
+  .tabrow .filtwrap { margin-left: auto; }
+}
