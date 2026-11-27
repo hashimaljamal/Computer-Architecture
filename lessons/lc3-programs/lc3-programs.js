@@ -93,6 +93,7 @@
         }
       }
       if (!prac || ST.reveal[x.id]) h += (prac ? '<h4 class="lp-h">Model solution</h4><pre class="mono lp-sol">' + esc(P.clean(x.solution)) + '</pre>' : '') +
+        (x.printed ? '<details class="lp-printed"><summary>The printed solution, as given in ' + esc(x.src.split(' \u00b7 ')[0]) + '</summary><pre class="mono">' + esc(x.printed) + '</pre></details>' : '') +
         (x.note ? '<p class="lp-note">' + esc(x.note) + '</p>' : '');
       h += '<h4 class="lp-h">Memory map</h4>' + listing(src, x);
       O('main').innerHTML = h;

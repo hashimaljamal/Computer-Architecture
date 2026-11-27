@@ -107,68 +107,92 @@
     },
     {
       id: 'w4', cat: 'write', tab: 'W4: count characters, furthest letter', src: 'Homework 1, Q6',
-      prompt: 'Write an LC-3 program that displays the total number of characters stored in a file (not counting the End-of-Text character 4), followed by the furthest character in alphabetical order. For "WelcomeAUS" the count is 10. The address of the file is stored at 0x5040 and the program starts at 0x5000. Use a pointer in R1, a counter in R2 (starting at 0), and R3 for each character read (ch_file). Stop at EOT (4); print with TRAP x21 (character in R0) and halt with TRAP x25. ASCII ‘A’ = 65 and ‘a’ = 97.',
-      code: 'count = 0;  best = none;\nwhile ((ch = *p) != 4) {\n    count++;\n    if (letter(ch) after best, ignoring case) best = ch;\n    p++;\n}\nprint(count);  print(best);',
-      map: ['Pointer in R1', 'Counter in R2', 'ch_file in R3', 'File address stored at 0x5040', 'Program starts at 0x5000'],
+      prompt: "Write an LC-3 language program that will display the total number of characters (excluding End-of-Text character ‘4’) stored in a file followed by displaying the furthest character in alphabetical order. For instance, if the content of the file is “WelcomeAUS4”, the program will display 10 (i.e., total number of characters excluding 4). Note that the ASCII values of ‘A’ and ‘a’ is 65, and 97 (All in decimal). The starting address of the file is stored at location 0x5040. The starting address of the program is 0x5000 and the End-of-Text character is ‘4’. The program should use a pointer variable (stored in R1) and a counter (stored in R2). The counter R2 is initialized to zero. You may require a loop that will read the characters from the file (referred to as ch_file) one by one. Note that ch_file is mapped to register R3. If the end of the file is reached (i.e., ch_file is equal to EOT), the loop is terminated. The counter R2 is incremented after reading each character from the file. However, the counter R2 should not be incremented if EOT is read from the file. The file finishes with the character (EOT: End of Text). The EOT is ‘4’ for LC-3. When all characters from the files are read, then the character count stored in R2 is displayed on a monitor. We can use trap 0x21 instruction to output a character to monitor which is stored in R0. You can use trap 0x25 instruction to halt the program after its completion.",
+      code: 'R2 = 0;                    // counter\nR1 = *(0x5040);            // pointer to the file\nR3 = *R1;                  // ch_file\nwhile (R3 != 4) {          // EOT\n    if (R3 is a letter) {  // A..Z or a..z\n        R2++;\n        if (R3 is further in the alphabet than best) best = R3;\n    }\n    R1++;  R3 = *R1;\n}\nprint(R2);  print(best);',
+      map: ['Pointer in R1', 'Counter in R2 (starts at 0)', 'ch_file in R3', 'File address stored at 0x5040', 'Program starts at 0x5000', 'EOT = 4'],
       start: 0x5000,
       solution:
-        ';; Set up: counter R2 = 0, best letter so far R5 (upper-case value) and R6 (as written) = 0, and R1 = the file address, stored at 0x5040.\n' +
+        ';; Set up: the counter R2 = 0 and the pointer R1 = the file address stored at 0x5040 (R5, R6 remember the furthest letter).\n' +
         '        ORG 0x5000\n' +
-        '        AND R2, R2, #0      ; count = 0\n' +
-        '        AND R5, R5, #0      ; best (upper-case value) = none\n' +
-        '        AND R6, R6, #0      ; best (character) = none\n' +
-        '        LD  R1, FILEADR     ; R1 = address of the file\n' +
-        ';; Read a character and stop at EOT (4). Every other character is counted.\n' +
-        'READ:   LDR R3, R1, #0      ; R3 = ch_file\n' +
-        '        ADD R4, R3, #-4     ; EOT?\n' +
-        '        BRz SHOW\n' +
-        '        ADD R2, R2, #1      ; count++\n' +
-        ';; Compare letters without case: a lower-case letter (97 or more) becomes upper case by subtracting 32 (two ADDs of #-16).\n' +
-        '        LD  R0, NEGa        ; R0 = -97\n' +
-        '        ADD R4, R3, R0\n' +
-        '        BRn UP              ; below \'a\': keep it\n' +
+        '        AND R2, R2, #0      ; [R2] = 0, the counter\n' +
+        '        LD  R1, FILEADR     ; [R1] = Mem[0x5040] = file address (the pointer)\n' +
+        '        AND R5, R5, #0      ; R5 = furthest letter so far (compared as upper case): none yet\n' +
+        '        AND R6, R6, #0      ; R6 = that letter as it appears in the file\n' +
+        ';; Read ch_file into R3; the loop compares it with EOT (4) and stops there.\n' +
+        '        LDR R3, R1, #0      ; [R3] = M[R1] = ch_file\n' +
+        'LOOP:   ADD R4, R3, #-4     ; compare ch_file with EOT\n' +
+        '        BRz EOTLBL          ; EOT reached: display\n' +
+        ';; Is it a capital letter? \'A\' <= ch_file <= \'Z\' (subtract each bound: add its 2\'s complement).\n' +
+        '        LD  R0, UPA         ; [R0] = ASCII \'A\'\n' +
+        '        NOT R0, R0\n' +
+        '        ADD R0, R0, #1      ; [R0] = -\'A\'\n' +
+        '        ADD R4, R3, R0      ; ch_file - \'A\'\n' +
+        '        BRn NOINC           ; less than \'A\': do not count\n' +
+        '        LD  R0, UPZ         ; [R0] = ASCII \'Z\'\n' +
+        '        NOT R0, R0\n' +
+        '        ADD R0, R0, #1      ; [R0] = -\'Z\'\n' +
+        '        ADD R4, R3, R0      ; ch_file - \'Z\'\n' +
+        '        BRp SMALL           ; greater than \'Z\': check for a small letter\n' +
+        '        ADD R4, R3, #0      ; capital letter: compare it as it is\n' +
+        '        BRnzp INC\n' +
+        ';; Otherwise, is it a small letter? \'a\' <= ch_file <= \'z\'. Small letters are compared as capitals (ch - 32).\n' +
+        'SMALL:  LD  R0, LOWA        ; [R0] = ASCII \'a\'\n' +
+        '        NOT R0, R0\n' +
+        '        ADD R0, R0, #1      ; [R0] = -\'a\'\n' +
+        '        ADD R4, R3, R0      ; ch_file - \'a\'\n' +
+        '        BRn NOINC           ; less than \'a\': do not count\n' +
+        '        LD  R0, LOWZ        ; [R0] = ASCII \'z\'\n' +
+        '        NOT R0, R0\n' +
+        '        ADD R0, R0, #1      ; [R0] = -\'z\'\n' +
+        '        ADD R4, R3, R0      ; ch_file - \'z\'\n' +
+        '        BRp NOINC           ; greater than \'z\': do not count\n' +
         '        ADD R4, R3, #-16\n' +
-        '        ADD R4, R4, #-16    ; R4 = ch - 32\n' +
-        '        BRnzp CMP\n' +
-        'UP:     ADD R4, R3, #0      ; R4 = ch\n' +
-        ';; Keep the character if it comes later than the best so far: R4 - R5 > 0.\n' +
-        'CMP:    NOT R0, R5\n' +
-        '        ADD R0, R0, #1      ; R0 = -best\n' +
-        '        ADD R0, R4, R0\n' +
-        '        BRnz NEXT\n' +
-        '        ADD R5, R4, #0      ; new best (upper case)\n' +
-        '        ADD R6, R3, #0      ; and the character itself\n' +
-        'NEXT:   ADD R1, R1, #1      ; next character\n' +
-        '        BRnzp READ\n' +
-        ';; Print the count in decimal: subtract 10 as many times as possible to get the tens digit; what is left is the units digit. Add ASCII ‘0’ (0x30) to each.\n' +
-        'SHOW:   AND R4, R4, #0      ; tens = 0\n' +
-        'TENS:   ADD R0, R2, #-10\n' +
+        '        ADD R4, R4, #-16    ; small letter: compare it as a capital (ch - 32)\n' +
+        ';; A letter: increment the counter, and keep it if it is further in the alphabet than the best so far.\n' +
+        'INC:    ADD R2, R2, #1      ; increment the counter\n' +
+        '        NOT R0, R5\n' +
+        '        ADD R0, R0, #1      ; [R0] = -(furthest so far)\n' +
+        '        ADD R0, R4, R0      ; is this letter further?\n' +
+        '        BRnz NOINC\n' +
+        '        ADD R5, R4, #0      ; yes: remember it\n' +
+        '        ADD R6, R3, #0\n' +
+        ';; Increment the pointer, read the next ch_file and compare with EOT again.\n' +
+        'NOINC:  ADD R1, R1, #1      ; increment the pointer\n' +
+        '        LDR R3, R1, #0      ; [R3] = next ch_file\n' +
+        '        BRnzp LOOP          ; compare ch_file with EOT again\n' +
+        ';; EOT reached: display the count (two digits when it is 10 or more), then the furthest character, and halt.\n' +
+        'EOTLBL: LD  R3, ASCII0      ; [R3] = 0x30, ASCII \'0\'\n' +
+        '        AND R4, R4, #0      ; tens digit = 0\n' +
+        'TENS:   ADD R0, R2, #-10    ; count of 10 or more?\n' +
         '        BRn ONES\n' +
-        '        ADD R2, R0, #0      ; count -= 10\n' +
-        '        ADD R4, R4, #1      ; tens++\n' +
+        '        ADD R2, R0, #0      ; count = count - 10\n' +
+        '        ADD R4, R4, #1      ; tens = tens + 1\n' +
         '        BRnzp TENS\n' +
-        'ONES:   LD  R3, ASCII0      ; R3 = 0x30\n' +
-        '        ADD R4, R4, #0\n' +
-        '        BRz UNITS           ; no tens digit\n' +
-        '        ADD R0, R4, R3\n' +
+        'ONES:   ADD R4, R4, #0\n' +
+        '        BRz UNITS           ; no tens digit to print\n' +
+        '        ADD R0, R4, R3      ; ASCII of the tens digit\n' +
         '        TRAP x21\n' +
-        'UNITS:  ADD R0, R2, R3\n' +
+        'UNITS:  ADD R0, R2, R3      ; ASCII of the units digit\n' +
         '        TRAP x21\n' +
-        ';; Then print the furthest letter, and halt. Constants go after the code; the file address goes at 0x5040.\n' +
-        '        ADD R0, R6, #0\n' +
-        '        BRz DONE\n' +
+        '        ADD R0, R6, #0      ; then the furthest character\n' +
+        '        BRz DONE            ; (no letters in the file)\n' +
         '        TRAP x21\n' +
-        'DONE:   TRAP x25\n' +
-        'ASCII0: 0x0030\n' +
-        'NEGa:   0xFF9F          ; -97\n' +
+        'DONE:   TRAP x25            ; halt\n' +
         '        ORG 0x5040\n' +
-        'FILEADR: 0x4000\n',
+        ';; The file address and the ASCII constants, stored from 0x5040 as in the printed solution.\n' +
+        'FILEADR: 0x4000             ; the file address is stored here\n' +
+        'ASCII0: 0x0030              ; ASCII \'0\'\n' +
+        'UPA:    0x0041              ; ASCII \'A\'\n' +
+        'UPZ:    0x005A              ; ASCII \'Z\'\n' +
+        'LOWA:   0x0061              ; ASCII \'a\'\n' +
+        'LOWZ:   0x007A              ; ASCII \'z\'\n',
+      printed: "0x5000: AND R2, R2, #0 % [R2] = 0 is storing occurrences\n0x5001: LD R1, 0x3E % [R3] = Mem[IncPC+offset] = Mem[0x5040] = FileAddress\n0x5002: LDR R3, R1, #0     % [R3] = M[R1] ch_file\n%Compare ch_file with ASCII characters now\n0x5003: ADD R4, R3, #-4 % [R4] = [R3] – 4; Compare ch_file with EOT\n0x5004: Brz TODO      % Compare if EOT reached jump to EOTLabel\n0x5005: LD R0, 0x3B       % [R0] = ASCII value of A\n0x5006: NOT R0, R0      % invert [R0]\n0x5007: ADD R0, R0, #1     % [R0] = – ASCII value of A ASCIIA\n0x5008: ADD R4, R3, R0      % [R4] = ch_file – ASCII value of A\n0x5009: Brn 0x6 %If less than A then DONOT_INC_COUNT\n0x500A: LD R0, 0x38       % [R0] = ASCII value of Z ASCIIZ\n0x500B: NOT R0, R0      % invert [R0]\n0x500C: ADD R0, R0, #1     % [R0] = – ASCII value of Z\n0x500D: ADD R4, R3, R0      % [R4] = ch_file – ASCII value of Z\n0x500E: Brp 0x04 %If greater than Z then CheckForSmall\n0x500F: ADD R2, R2, #1     % increment [R2] counter INC_COUNT\n0x5010: ADD R1, R1, #1     % increment [R1] address, DONOT_INC_COUNT\n0x5011: LDR R3, R1, #0     % R3 = ch_file\n0x5012: Brnzp 0x1F0       % Compare ch_file with EOT again\n0x5013: LD R0, 0x30       % [R0] = ASCII value of a ASCIIa    CheckForSmall\n0x5014: NOT R0, R0     % invert [R0]\n0x5015: ADD R0, R0, #1     % [R0] = – ASCII value of a\n0x5016: ADD R4, R3, R0     % [R4] = ch_file – ASCII value of a\n0x5017: Brn 0x1FA %If less than A then DONOT_INC_COUNT\n0x5018: LD R0, 0x2C       % [R0] = ASCII value of Z ASCIIz\n0x5019: NOT R0, R0     % invert [R0]\n0x5020: ADD R0, R0, #1     % [R0] = – ASCII value of z\n0x5021: ADD R4, R3, R0     % [R4] = ch_file – ASCII value of z\n0x5022: Brp 0x1FD %If greater than Z then DONOT_INC_COUNT\n%EOT is now reached\n0x5023: LD R0, 0x1D % [R0] = M[0x5041] EOTLabel is here\n0x5024: ADD R0, R0, R2 % Add ASCII value of 30\n0x5025: TRAP 0x21      % output counter value to monitor stored in [R0]\n0x5026: TRAP 0x25      % Halt the program\n%All variables are stored here\n0x5040: File-Address      % FileAddress is stored here\n0x5041: 0x30    % ASCII template 0x30 = 48; The ASCII code of 0 is 48\n0x5042: 0x41 % ASCII Value of A is stored here ASCIIA\n0x5043: 0x5A % ASCII Value of Z is stored here ASCIIZ\n0x5044: 0x61 % ASCII Value of a is stored here ASCIIa\n0x5045: 0x7A % ASCII Value of z is stored here ASCIIz",
       tests: [
-        { name: 'file "WelcomeAUS"', mem: str(0x4000, 'WelcomeAUS'), out: '10W', fixMem: { 0x5040: 0x4000 } },
-        { name: 'file "Computer Arch"', mem: str(0x4000, 'Computer Arch'), out: '13u', fixMem: { 0x5040: 0x4000 } },
-        { name: 'file "zebra"', mem: str(0x4000, 'zebra'), out: '5z', fixMem: { 0x5040: 0x4000 } }
+        { name: 'file "WelcomeAUS4" (the question\u2019s example)', mem: str(0x4000, 'WelcomeAUS'), out: '10W', fixMem: { 0x5040: 0x4000 } },
+        { name: 'file "zebra4"', mem: str(0x4000, 'zebra'), out: '5z', fixMem: { 0x5040: 0x4000 } },
+        { name: 'file "ArchitectureLab4"', mem: str(0x4000, 'ArchitectureLab'), out: '15u', fixMem: { 0x5040: 0x4000 } }
       ],
-      note: 'The homework’s printed solution counts only letters, prints the count as one digit (10 would come out as ‘:’) and never prints the furthest letter. This version does what the question asks; the tests accept any program that prints the count and then the letter.'
+      note: 'The working solution follows the printed one (same registers, the same A\u2013Z and a\u2013z checks, constants from 0x5040) with its slips fixed: at 0x5005 the offset must be 0x3C to reach \u2018A\u2019 at 0x5042 (0x3B reaches 0x5041); a small letter must jump back to INC_COUNT instead of falling into the EOT code; the a\u2013z \u201cless than\u201d branch must reach DONOT_INC_COUNT (0x5010), not 0x5012; the addresses after 0x5019 continue 0x501A, not 0x5020; a count of 10 needs two digits (\u20180\u2019 + 10 prints \u2018:\u2019); and it also displays the furthest character, as the question asks. Like the printed solution it counts letters; for the example file that is every character.'
     },
     {
       id: 'w5', cat: 'write', tab: 'W5: sum of 12 integers', src: 'Practice problem 2, Q1 · Lecture 6',
