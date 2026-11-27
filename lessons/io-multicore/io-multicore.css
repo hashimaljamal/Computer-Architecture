@@ -140,3 +140,4 @@
 .lesson-iomc .hmd .fig { margin: 0; }
 .lesson-iomc .hmd figcaption { font-size: 14px; font-weight: 700; color: var(--tpri); margin: 0 0 6px; }
 .lesson-iomc .hma p { font-size: 15px; line-height: 1.65; margin: 0 0 12px; }
+.lesson-iomc .iod .callout { fill: var(--s1); stroke: var(--tsec); stroke-width: 1.6; stroke-linejoin: round; }

@@ -280,7 +280,21 @@
     }
     b += box(400, 130, 120, 100, 'unit act') + t(460, 168, '4-input odd', 'ts') + t(460, 186, 'function', 'ts');
     b += path('M520 180H560', bit(P), true) + t(568, 180, 'P = ' + P, 'tm b', 'start');
-    return svg(640, 310, b, '16-bit parity generator');
+    // the logic view: a callout opening the final 4-input odd function into its three XOR gates
+    var g1 = outs[0] ^ outs[1], g2 = outs[2] ^ outs[3];
+    b += '<path d="M654 8H966Q980 8 980 22V226Q980 240 966 240H654Q640 240 640 226V176L524 140L640 150V22Q640 8 654 8Z" class="callout"/>';
+    b += t(810, 26, 'Inside a 4-input odd function', 'ts b');
+    var ins = [[72, outs[0]], [88, outs[1]], [168, outs[2]], [184, outs[3]]];
+    ins.forEach(function (r, i) {
+      b += t(654, r[0], 'x' + i + ' = ' + r[1], 'tx', 'start') + path('M708 ' + r[0] + 'H770', bit(r[1]));
+    });
+    b += gate('xor', 766, 63, 54, 34, 'r', g1 === 1) + gate('xor', 766, 159, 54, 34, 'r', g2 === 1);
+    b += path('M820 80H846V117H868', bit(g1)) + path('M820 176H846V139H868', bit(g2));
+    b += t(828, 70, g1, 'tx b') + t(828, 166, g2, 'tx b');
+    b += gate('xor', 864, 111, 54, 34, 'r', P === 1);
+    b += path('M918 128H950', bit(P), true) + t(940, 114, P, 'tx b');
+    b += t(810, 218, 'two XORs, then one XOR: 3 gates, 2 levels', 'ts');
+    return svg(990, 310, b, '16-bit parity generator, with the three XOR gates inside a 4-input odd function');
   }
 
   return { taskGraph: taskGraph, gantt: gantt, serialBus: serialBus, addrBus: addrBus, timing: timing, aluPath: aluPath, harrisPath: harrisPath, aluSymbol: aluSymbol, gate: gate, mux: mux, par3: par3, par16: par16, POS: POS };
