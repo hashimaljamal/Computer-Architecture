@@ -39,6 +39,7 @@
     <section data-o="tutwrap" hidden><div data-o="tut"></div></section>
 
     <section data-view="solution">
+      <label class="hmbox"><input type="checkbox" data-o="hashim"> <span><b>Hashim method</b>: the address bits, then a table solved right to left</span></label>
       <div data-o="format"></div>
 
       <h3>Where does an address go?</h3>
@@ -158,8 +159,32 @@
       return '<div class="keybox">' + html + '</div>';
     }
 
+    // Hashim's method: work out the address bits, then fill a table right to left (offset, index, tag)
+    function hashimTable(R) {
+      var list = R.list, d0 = list[0], memTxt = esc(F('memval').value + ' ' + F('memunit').value), cacheTxt = esc(F('cval').value + ' ' + F('cunit').value);
+      var cacheBits = d0.linesBits + d0.offset, lineBits = d0.offset;
+      var h = '<p class="cap">Step 1: address bits</p><ol class="steps"><li>Main memory = ' + memTxt + ' = ' + pw(d0.bits) + ' bytes, so the address is <b>' + d0.bits + ' bits</b>.</li></ol>' +
+        '<p class="cap">Step 2: the table, solved right to left (Offset first, then Index, then Tag)</p>' +
+        '<div class="tw"><table class="hmt"><thead><tr><th></th>' +
+        '<th class="f-tag">Tag<span>= ' + d0.bits + ' − Index − Offset</span></th>' +
+        '<th class="f-idx">Index<span>= log₂(Size ÷ (ways × bytes per line))</span></th>' +
+        '<th class="f-off">Offset<span>= log₂(bytes per line)</span></th></tr></thead><tbody>';
+      list.forEach(function (d) {
+        var den = d.ways === 1 ? pw(lineBits) : d.ways + ' × ' + pw(lineBits);
+        h += '<tr><th>' + esc(Q.wayLabel(d.ways)) + '</th>' +
+          '<td>' + d.bits + ' − ' + d.index + ' − ' + d.offset + ' = <b>' + d.tag + '</b></td>' +
+          '<td>log₂(' + pw(cacheBits) + ' ÷ ' + (d.ways === 1 ? den : '(' + den + ')') + ') = <b>' + d.index + '</b></td>' +
+          '<td>log₂ ' + d.line + ' = <b>' + d.offset + '</b></td></tr>';
+      });
+      h += '</tbody></table></div><p class="muted small">Size = ' + cacheTxt + ' = ' + pw(cacheBits) + ' bytes; bytes per line = ' + d0.line + ' = ' + pw(lineBits) + '.' +
+        (list.length > 1 ? ' Offset is the same in every row; each doubling of the ways takes 1 bit from Index and gives it to Tag (Tag + Index = ' + (d0.bits - d0.offset) + ').' : '') + '</p>';
+      list.forEach(function (d, i) { h += (list.length > 1 ? '<h4 class="dhead">' + letter(i) + esc(Q.wayLabel(d.ways)) + '</h4>' : '') + bar(d) + keyLine(d); });
+      return h;
+    }
+
     function renderFormat(R) {
       if (R.error) { O('format').innerHTML = ''; return; }
+      if (O('hashim').checked) { O('format').innerHTML = hashimTable(R); return; }
       var list = R.list, d0 = list[0], cacheTxt = esc(F('cval').value + ' ' + F('cunit').value);
       var lines = 'Cache lines = cache size ÷ line size = ' + cacheTxt + ' ÷ ' + d0.line + ' B = ' + pw(d0.linesBits) + ' = ' + d0.lines;
       var off = 'Byte offset = log₂(' + d0.line + ') = ' + d0.offset + ' bits';
@@ -380,6 +405,14 @@
         b.classList.toggle('on', on); b.setAttribute('aria-pressed', String(on));
       });
     }
+
+    // the Hashim method box is remembered in this browser
+    var HM_KEY = 'ca-cache-hashim';
+    try { O('hashim').checked = localStorage.getItem(HM_KEY) === '1'; } catch (e) { /* storage blocked: start unticked */ }
+    O('hashim').addEventListener('change', function () {
+      try { localStorage.setItem(HM_KEY, O('hashim').checked ? '1' : '0'); } catch (e) { /* not remembered */ }
+      update();
+    });
 
     /* ---------- events (on the panel only) ---------- */
     el.addEventListener('input', function (e) {

@@ -85,3 +85,21 @@
 .lesson-cache .gset { display: flex; align-items: center; gap: 3px; font-size: 11px; color: var(--tsec); }
 .lesson-cache .gset span { width: 38px; }
 .lesson-cache .gset i { display: inline-block; width: 22px; height: 14px; border: 1.5px solid var(--wa); border-radius: 3px; background: var(--hl); }
+
+/* Hashim method: address bits, then a table solved right to left */
+.lesson-cache .hmbox { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; padding: 8px 12px; border: 1px solid var(--bd); border-radius: 10px; background: var(--s1); font-size: 14px; cursor: pointer; width: fit-content; max-width: 100%; }
+.lesson-cache .hmbox input { width: 18px; height: 18px; margin: 0; accent-color: var(--tacc); flex: none; cursor: pointer; }
+.lesson-cache .hmbox span { color: var(--tsec); }
+.lesson-cache .hmbox b { color: var(--tpri); }
+.lesson-cache .tw { overflow-x: auto; max-width: 100%; }
+.lesson-cache .hmt { border-collapse: collapse; width: 100%; font-size: 14px; margin: 4px 0 8px; }
+.lesson-cache .hmt th, .lesson-cache .hmt td { border: 1px solid var(--bd); padding: 8px 10px; text-align: left; vertical-align: top; }
+.lesson-cache .hmt thead th { font-weight: 700; color: var(--tpri); }
+.lesson-cache .hmt thead th span { display: block; font-weight: 500; font-size: 12px; color: var(--tsec); white-space: nowrap; margin-top: 2px; }
+.lesson-cache .hmt thead th.f-tag { box-shadow: inset 0 4px 0 var(--wm); }
+.lesson-cache .hmt thead th.f-idx { box-shadow: inset 0 4px 0 var(--wa); }
+.lesson-cache .hmt thead th.f-off { box-shadow: inset 0 4px 0 var(--wg); }
+.lesson-cache .hmt tbody th { font-weight: 600; white-space: nowrap; }
+.lesson-cache .hmt td { white-space: nowrap; font-variant-numeric: tabular-nums; }
+.lesson-cache .hmt td b { color: var(--tacc); font-size: 15px; }
+.lesson-cache .hmt th.f-tag, .lesson-cache .hmt th.f-idx, .lesson-cache .hmt th.f-off { border-color: var(--bd); }
