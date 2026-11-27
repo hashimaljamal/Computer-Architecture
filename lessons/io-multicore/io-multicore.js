@@ -79,6 +79,7 @@
       </div>
 
     </div><div class="col-b">
+      <label class="hmbox" data-only="solres" data-o="hmwrap" hidden><input type="checkbox" data-o="hashim"> <span><b>Hashim method</b>: both diagrams side by side, then the written answer</span></label>
       <div data-only="solres" data-o="out"></div>
       <div data-only="pracres" data-o="prac"></div>
       <div data-only="tutres" data-o="tut"></div>
@@ -157,11 +158,38 @@
     /* ---------- solution views ---------- */
     function metric(label, value, sub) { return '<div class="mc"><span>' + label + '</span><b>' + value + '</b>' + (sub ? '<i>' + sub + '</i>' : '') + '</div>'; }
 
+    // Hashim method (I/O Systems only): the two diagrams side by side, then the answer as plain text
+    var HM_KEY = 'ca-io-hashim';
+    function hashim() { return cat === 'io' && O('hashim').checked; }
+    function hmFigs(t1, f1, t2, f2) {
+      return '<div class="hmd"><figure class="fig"><figcaption>' + t1 + '</figcaption>' + f1 + '</figure><figure class="fig"><figcaption>' + t2 + '</figcaption>' + f2 + '</figure></div>';
+    }
+    function hmMux(p, a, b) {
+      var parts = a.chunks.map(function (c) { return 'data[' + c.hi + ':' + c.lo + ']'; });
+      return hmFigs('(a) Data serialization', D.serialBus(p.req, p.bus, a), '(b) Address/data multiplexing', D.addrBus(p.addr, p.data, b)) +
+        '<div class="hma"><p><b>(a) Data serialization.</b> The request is ' + p.req + ' bits but the data bus is only ' + p.bus + ' bits wide, so the master sends it in <b>' + a.transfers + ' transfers</b> over the same ' + p.bus + ' wires' +
+        (a.transfers <= 4 ? ': first ' + parts.slice(0, -1).join(', then ') + ', then ' + parts[parts.length - 1] : ', high-order piece first') + '. ' +
+        'The master\u2019s mux picks which piece goes on the bus on each strobe, and the servant\u2019s demux puts each piece back into its ' + p.req + '-bit register. This is <b>time multiplexing</b>: fewer wires (' + p.bus + ' instead of ' + p.req + '), but ' + a.transfers + ' transfers instead of 1.</p>' +
+        '<p><b>(b) Address/data multiplexing.</b> Instead of separate address and data lines, the address and the data share one set of <b>' + b.shared + ' lines</b>: the master puts the <b>address</b> on them first, then the <b>data</b>. ' +
+        'This saves ' + b.saved + ' wires (' + b.shared + ' instead of ' + b.separate + '), at the cost of 2 transfers per access.' +
+        (ST.q.given ? ' With ' + p.addr + ' address bits and ' + p.data + '-bit data, the memory holds 2^' + p.addr + ' \u00d7 ' + p.data + ' bits = <b>' + esc(b.memText) + '</b>.' : '') + '</p></div>';
+    }
+    function hmProto(d, ta) {
+      return hmFigs('(a) Strobe protocol', D.timing('strobe', d, ta), '(b) Handshake protocol', D.timing('handshake', d, ta)) +
+        '<div class="hma"><p><b>(a) Strobe protocol.</b> The master asserts <b>req</b> to ask for data. The servant must put the data on the bus within a fixed time <b>t<sub>access</sub></b>; the master then reads it and deasserts req, and the servant is ready for the next request. ' +
+        'There is <b>one</b> control line and the access time is <b>constant</b>: the master simply assumes the data is valid after t<sub>access</sub>, so it only works with a servant whose speed is known and fixed.</p>' +
+        '<p><b>(b) Handshake protocol.</b> The master asserts <b>req</b>. The servant takes as long as it needs, puts the data on the bus and asserts <b>ack</b>; the master reads the data and deasserts req, and the servant deasserts ack. ' +
+        'There are <b>two</b> control lines (req and ack) and the access time is <b>variable</b>: the servant tells the master when the data is valid, so it works with a servant of any speed.</p>' +
+        '<p><b>Difference:</b> strobe trusts a fixed time; handshake waits for an acknowledgement. Because the handshake\u2019s access time is variable, it needs the ack signal.</p>' +
+        (d > ta ? '<p class="bad">With these settings the servant needs ' + d + ' units but the strobe master reads after ' + ta + ', so the strobe master reads data that is not valid yet; the handshake master still waits for ack.</p>' : '') + '</div>';
+    }
+
     function renderMux() {
       var p = params('mux'), a = L.serialize(p.req, p.bus), b = L.addrData(p.addr, p.data);
       O('muxnote').textContent = ST.q.given ? '' : 'Part (b) of this question gives no sizes, so try any.';
       if (a.error || b.error) { O('err').textContent = a.error || b.error; O('out').innerHTML = ''; return; }
       O('err').textContent = '';
+      if (hashim()) { O('out').innerHTML = hmMux(p, a, b); return; }
       O('out').innerHTML = '<h3 class="rh">(a) Data serialization</h3><div class="mets">' + metric('Transfers per request', a.transfers, p.req + ' ÷ ' + p.bus + (a.padded ? ', rounded up' : '')) +
         metric('Data wires', p.bus, 'saves ' + a.saved + ' of ' + p.req) + metric('First on the bus', 'data[' + a.chunks[0].hi + ':' + a.chunks[0].lo + ']', 'high-order first') + '</div>' +
         '<div class="fig">' + D.serialBus(p.req, p.bus, a) + '</div>' +
@@ -178,6 +206,7 @@
     function renderProto() {
       var d = +F('delay').value, ta = +F('tacc').value;
       O('delayv').textContent = d + ' units'; O('taccv').textContent = ta + ' units';
+      if (hashim()) { O('out').innerHTML = hmProto(d, ta); return; }
       O('out').innerHTML = '<div class="two-col">' +
         '<div><h3 class="rh">Strobe protocol</h3><div class="fig">' + D.timing('strobe', d, ta) + '</div><ol class="steps"><li>Master asserts <b>req</b> to receive data.</li><li>Servant puts the data on the bus within the fixed time <b>t<sub>access</sub></b>.</li><li>Master reads the data and deasserts req.</li><li>Servant is ready for the next request.</li></ol>' +
         (d > ta ? '<p class="bad">The servant needs ' + d + ' units but the master reads after ' + ta + ': it reads data that is not valid yet. Strobe only works when the servant is always fast enough.</p>' : '<p class="okmsg">✓ The servant is ready within t<sub>access</sub>, so the master reads valid data.</p>') + '</div>' +
@@ -334,6 +363,14 @@
     }
 
     /* ---------- events ---------- */
+    if (cat === 'io') {
+      O('hmwrap').hidden = false;
+      try { O('hashim').checked = localStorage.getItem(HM_KEY) === '1'; } catch (e) { /* storage blocked: start unticked */ }
+      O('hashim').addEventListener('change', function () {
+        try { localStorage.setItem(HM_KEY, O('hashim').checked ? '1' : '0'); } catch (e) { /* not remembered */ }
+        refresh();
+      });
+    }
     el.addEventListener('click', function (e) {
       var b = e.target.closest && e.target.closest('button, tr[data-row]');
       if (!b || !el.contains(b) || b.closest('.gmodal') || b.closest('.tut')) return;

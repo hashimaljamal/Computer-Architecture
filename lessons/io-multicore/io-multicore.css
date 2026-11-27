@@ -129,3 +129,14 @@
   .lesson-iomc .fig, .lesson-iomc .gfig, .lesson-lecs .w-svg { overflow-x: auto; }
   .lesson-iomc .fig > svg.iod, .lesson-iomc .gfig > svg.iod, .lesson-lecs .w-svg > svg.iod { min-width: 520px; }
 }
+
+/* Hashim method (I/O Systems): both diagrams side by side, then the written answer */
+.lesson-iomc .hmbox { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; padding: 8px 12px; border: 1px solid var(--bd); border-radius: 10px; background: var(--s1); font-size: 14px; cursor: pointer; width: fit-content; max-width: 100%; }
+.lesson-iomc .hmbox[hidden] { display: none; }
+.lesson-iomc .hmbox input { width: 18px; height: 18px; margin: 0; accent-color: var(--tacc); flex: none; cursor: pointer; }
+.lesson-iomc .hmbox span { color: var(--tsec); }
+.lesson-iomc .hmbox b { color: var(--tpri); }
+.lesson-iomc .hmd { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); gap: 12px; align-items: start; margin: 0 0 14px; }
+.lesson-iomc .hmd .fig { margin: 0; }
+.lesson-iomc .hmd figcaption { font-size: 14px; font-weight: 700; color: var(--tpri); margin: 0 0 6px; }
+.lesson-iomc .hma p { font-size: 15px; line-height: 1.65; margin: 0 0 12px; }
